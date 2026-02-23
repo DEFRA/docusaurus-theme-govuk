@@ -72,12 +72,10 @@ module.exports = function themeGovuk(context, options) {
             'react-router': resolveFromSite('react-router'),
             'react-router-dom': resolveFromSite('react-router-dom'),
             'react-router-config': resolveFromSite('react-router-config'),
-            // Ensure @mdx-js/react resolves from the theme's node_modules,
-            // not the consumer's (which may not have it installed).
-            '@mdx-js/react': path.resolve(
-              __dirname,
-              'node_modules/@mdx-js/react'
-            ),
+            // Ensure @mdx-js/react resolves from the consumer's node_modules.
+            // When installed from npm the theme ships no node_modules of its own,
+            // so we must point webpack at the copy already present in the site.
+            '@mdx-js/react': resolveFromSite('@mdx-js/react'),
           },
         },
         plugins: [
