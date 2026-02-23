@@ -1,0 +1,19 @@
+/* Hide Docusaurus breadcrumbs (defensive - in case classic elements leak through) */
+.theme-doc-breadcrumbs {
+  display: none !important;
+}
+
+/* Hide Docusaurus sidebar (we use GOV.UK NavigationMenu instead) */
+.theme-doc-sidebar-container {
+  display: none !important;
+}
+
+/* Make doc content full width */
+[class*='docMainContainer'] {
+  max-width: 100% !important;
+  flex: 1 !important;
+}
+
+.container {
+  max-width: 100%;
+}

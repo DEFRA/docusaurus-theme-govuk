@@ -1,0 +1,18 @@
+/* Import doc overrides to hide Docusaurus built-in elements */
+@import './doc-overrides.css';
+
+/* Import prose scope for markdown content styling */
+@import './prose-scope.scss';
+
+/* Import component styles */
+@import './components.scss';
+
+/*
+ * Set the default font on the body so that ALL elements
+ * (header, footer, service-nav, etc.) inherit GDS Transport.
+ * The prose-scope only covers content inside .app-prose-scope;
+ * without this, outer chrome inherits the browser default serif.
+ */
+body {
+  font-family: 'GDS Transport', arial, sans-serif;
+}

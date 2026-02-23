@@ -1,0 +1,90 @@
+// Component styles extracted from inline JS styles
+// to allow consumer CSS overrides and reduce HTML payload.
+
+// Sidebar layout
+.app-layout-sidebar {
+  display: flex;
+  gap: 2rem;
+}
+
+.app-layout-sidebar__nav {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.app-layout-sidebar__content {
+  flex: 1;
+  min-width: 0;
+}
+
+// Code block
+.app-code-block {
+  position: relative;
+  margin-bottom: 1.25rem;
+}
+
+.app-code-block__title {
+  padding: 0.5rem 1rem;
+  background: #f3f2f1;
+  border-bottom: 1px solid #b1b4b6;
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: 'GDS Transport', arial, sans-serif;
+}
+
+.app-code-block__pre {
+  padding: 1rem;
+  border-radius: 0;
+  overflow: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  position: relative;
+  border: 1px solid #b1b4b6;
+  margin: 0;
+}
+
+.app-code-block__copy {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8125rem;
+  border: 1px solid #b1b4b6;
+  border-radius: 0;
+  background: #f3f2f1;
+  cursor: pointer;
+  font-family: 'GDS Transport', arial, sans-serif;
+  color: #0b0c0c;
+
+  &:hover {
+    background: #dbdad9;
+  }
+}
+
+// Heading anchor link
+.app-heading-anchor {
+  margin-left: 0.5rem;
+  text-decoration: none;
+  opacity: 0.4;
+  font-size: 0.8em;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Pagination
+.app-pagination__container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.app-pagination__next {
+  text-align: right;
+}
+
+// Secondary text colour (matches govuk-frontend $govuk-secondary-text-colour)
+.app-text-secondary {
+  color: #505a5f;
+}

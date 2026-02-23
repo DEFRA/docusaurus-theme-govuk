@@ -1,0 +1,44 @@
+{
+  "name": "docusaurus-theme-govuk",
+  "version": "0.1.0",
+  "description": "A Docusaurus theme implementing the GOV.UK Design System for consistent, accessible documentation sites",
+  "main": "index.js",
+  "license": "MIT",
+  "files": [
+    "index.js",
+    "src/"
+  ],
+  "keywords": [
+    "docusaurus",
+    "docusaurus-theme",
+    "govuk",
+    "gov.uk",
+    "design-system",
+    "documentation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DEFRA/docusaurus-theme-govuk"
+  },
+  "peerDependencies": {
+    "@docusaurus/core": "^3.0.0",
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "dependencies": {
+    "@mdx-js/react": "^3.0.0",
+    "@not-govuk/simple-components": "^0.17.3",
+    "clsx": "^2.0.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^7.1.0",
+    "govuk-frontend": "^5.14.0",
+    "postcss-loader": "^8.2.0",
+    "prism-react-renderer": "^2.3.0",
+    "sass": "^1.97.0",
+    "sass-loader": "^16.0.0",
+    "style-loader": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0"
+  }
+}
