@@ -13,11 +13,21 @@ A Docusaurus 3 theme that applies the [GOV.UK Design System](https://design-syst
 - Bundled GDS Transport fonts and GOV.UK static assets
 - Compatible with React 18 and React 19
 
+
 ## Installation
 
 ```bash
 npm install docusaurus-theme-govuk
 ```
+
+### Consumer responsibilities
+
+- Install all required peer dependencies (see `peerDependencies` in the package).
+- Use the theme in your Docusaurus config as shown below.
+- Ensure your project uses compatible versions of Docusaurus and React.
+- Configure navigation and sidebar via `themeConfig.govuk.navigation`.
+
+No additional setup is required beyond standard Docusaurus theme usage.
 
 ## Configuration
 

@@ -1,14 +1,21 @@
 const path = require('path');
-const webpack = require('webpack');
-const CopyPlugin = require('copy-webpack-plugin');
+const fs = require('fs');
 
 module.exports = function themeGovuk(context, options) {
+  const siteDir = context.siteDir;
+
+  // Resolve webpack and plugins from the consumer's node_modules.
+  // Top-level require() would fail when installed via file: (symlink) because
+  // the theme directory has no local node_modules in that case.
+  const webpack = require(require.resolve('webpack', { paths: [siteDir] }));
+  const CopyPlugin = require(require.resolve('copy-webpack-plugin', { paths: [siteDir] }));
+
   const themePath = path.resolve(__dirname, './src/theme');
   const shimPath = path.resolve(__dirname, './src/lib/react-foundry-router-shim.js');
 
-  // Resolve govuk-frontend assets directory from this package's dependencies
+  // Resolve govuk-frontend assets directory from the consumer's node_modules
   const govukFrontendAssetsPath = path.dirname(
-    require.resolve('govuk-frontend/package.json')
+    require.resolve('govuk-frontend/package.json', { paths: [siteDir] })
   );
 
   // The base URL for this Docusaurus site (e.g. '/interactive-map/')
@@ -33,31 +40,64 @@ module.exports = function themeGovuk(context, options) {
     },
 
     configureWebpack(config, isServer, utils) {
-      // Resolve React from the consumer (siteDir) to avoid dual-instance issues.
-      // The theme ships its own node_modules/react via `file:` linking,
-      // so we must force all React imports to the consumer's single copy.
-      const siteDir = context.siteDir;
-
       // Helper: resolve a package from the consumer's siteDir.
       // Uses require.resolve with paths so it follows Node's resolution
       // (handles hoisted AND nested node_modules like @docusaurus/core/node_modules/react-router-dom).
+      // Also handles ESM-only packages (e.g. @mdx-js/react) that don't export ./package.json.
+      // Find the directory of an installed package by walking node_modules up
+      // the filesystem from each search path. Uses only fs.existsSync — no
+      // require.resolve — so it works even for ESM-only packages (e.g.
+      // @mdx-js/react) where jiti's require.resolve shim fails at runtime.
+      // Falls back to __dirname so that packages installed in the theme's own
+      // node_modules are found when consuming via file: (local dev).
+      function findPkgDir(pkg, searchPaths) {
+        const allSearchPaths = [...searchPaths, __dirname];
+        for (const startDir of allSearchPaths) {
+          let dir = startDir;
+          while (true) {
+            const candidate = path.join(dir, 'node_modules', pkg);
+            if (fs.existsSync(path.join(candidate, 'package.json'))) {
+              return candidate;
+            }
+            const parent = path.dirname(dir);
+            if (parent === dir) break; // filesystem root
+            dir = parent;
+          }
+        }
+        throw new Error(
+          `Could not find package "${pkg}" from [${allSearchPaths.join(', ')}]`
+        );
+      }
       function resolveFromSite(pkg) {
         try {
-          return path.dirname(
-            require.resolve(`${pkg}/package.json`, { paths: [siteDir] })
-          );
+          return findPkgDir(pkg, [siteDir]);
         } catch {
-          // Fallback: try resolving from @docusaurus/core (where react-router is nested in 3.9.x)
-          const docuCorePath = path.dirname(
-            require.resolve('@docusaurus/core/package.json', { paths: [siteDir] })
-          );
-          return path.dirname(
-            require.resolve(`${pkg}/package.json`, { paths: [docuCorePath] })
-          );
+          // Fallback: try resolving from @docusaurus/core's location (where
+          // react-router may be nested in Docusaurus 3.9.x).
+          const docuCoreDir = findPkgDir('@docusaurus/core', [siteDir]);
+          return findPkgDir(pkg, [docuCoreDir]);
         }
       }
 
+      // Resolve the CJS entry point of a package without going through jiti.
+      // Reads the package's own package.json `main` field (CJS) rather than
+      // using require.resolve which jiti may fail on.
+      function findPkgEntry(pkg) {
+        const pkgDir = findPkgDir(pkg, [siteDir]);
+        const pkgJson = JSON.parse(
+          fs.readFileSync(path.join(pkgDir, 'package.json'), 'utf8')
+        );
+        const main = pkgJson.main || 'index.js';
+        return path.resolve(pkgDir, main);
+      }
+
       return {
+        // Also resolve webpack loaders from the theme's own node_modules.
+        // When consumed via file: (local dev), loaders like style-loader,
+        // css-loader etc. live in the theme dir, not the consumer's node_modules.
+        resolveLoader: {
+          modules: ['node_modules', path.resolve(__dirname, 'node_modules')],
+        },
         resolve: {
           extensions: ['.mjs', '.js', '.jsx', '.json', '.scss'],
           fullySpecified: false,
@@ -102,15 +142,15 @@ module.exports = function themeGovuk(context, options) {
           // which fail under webpack's fullySpecified enforcement for .mjs files.
           new webpack.NormalModuleReplacementPlugin(
             /^@react-foundry\/component-helpers$/,
-            require.resolve('@react-foundry/component-helpers')
+            findPkgEntry('@react-foundry/component-helpers')
           ),
           new webpack.NormalModuleReplacementPlugin(
             /^@react-foundry\/client-component-helpers$/,
-            require.resolve('@react-foundry/client-component-helpers')
+            findPkgEntry('@react-foundry/client-component-helpers')
           ),
           new webpack.NormalModuleReplacementPlugin(
             /^@react-foundry\/uri$/,
-            require.resolve('@react-foundry/uri')
+            findPkgEntry('@react-foundry/uri')
           ),
           // Resolve asset paths from @not-govuk packages to govuk-frontend
           new webpack.NormalModuleReplacementPlugin(
@@ -160,6 +200,16 @@ module.exports = function themeGovuk(context, options) {
               },
             },
             {
+              // Force .docusaurus generated files (registry.js, routes.js etc.)
+              // to javascript/auto so that webpack's require.resolveWeak() magic
+              // transforms work.  Without this, a consumer with "type":"module"
+              // in their package.json causes webpack to treat these files as pure
+              // ESM, leaving require.resolveWeak() untransformed in the browser
+              // bundle, which throws "require is not defined" at runtime.
+              test: /\.docusaurus[/\\][^/\\]+\.js$/,
+              type: 'javascript/auto',
+            },
+            {
               test: /\.scss$/,
               use: [
                 'style-loader',
@@ -183,7 +233,7 @@ module.exports = function themeGovuk(context, options) {
                 {
                   loader: 'sass-loader',
                   options: {
-                    implementation: require('sass'),
+                    implementation: require(require.resolve('sass', { paths: [siteDir] })),
                     // Override GOV.UK asset path to include the Docusaurus baseUrl.
                     // The default '../../assets/' produces URLs without baseUrl,
                     // causing 404s when baseUrl is not '/'.
@@ -196,6 +246,7 @@ module.exports = function themeGovuk(context, options) {
                     },
                     sassOptions: {
                       includePaths: [
+                        path.join(siteDir, 'node_modules'),
                         path.resolve(__dirname, 'node_modules'),
                       ],
                       quietDeps: true,
