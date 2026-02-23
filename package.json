@@ -1,5 +1,5 @@
 {
-  "name": "docusaurus-theme-govuk",
+  "name": "@defra/docusaurus-theme-govuk",
   "version": "0.1.0",
   "description": "A Docusaurus theme implementing the GOV.UK Design System for consistent, accessible documentation sites",
   "main": "index.js",
