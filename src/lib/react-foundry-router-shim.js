@@ -41,15 +41,28 @@ const includes = (haystack, needle) => {
 export const useIsActive = () => {
   const location = useLocation();
 
-  return (href, exact = true) => {
+  return (href, exact = true, options = {}) => {
     const target = URI.parse(href, location.pathname);
-    const dir = target.pathname.endsWith('/') ? target.pathname : target.pathname + '/';
-    // Root path '/' should only match exactly, not as a prefix for all paths
-    const pathStart = target.pathname === '' || (target.pathname !== '/' && location.pathname.startsWith(dir));
-    const pathMatch = target.pathname === '' || location.pathname === target.pathname;
+    const pathMatch = location.pathname === target.pathname;
     const queryMatch = includes(location.query, target.query);
-    const activeExact = !!(pathMatch && queryMatch);
-    return exact ? activeExact : !!(activeExact || (pathStart && queryMatch));
+    // Home link: exact match only (must match exactly, not as a prefix)
+    if (
+      target.pathname === '/' ||
+      /^\/[^/]+\/?$/.test(target.pathname) // e.g. /interactive-map or /interactive-map/
+    ) {
+      // Only highlight if the current path matches the home link's pathname exactly
+      return location.pathname === target.pathname && queryMatch;
+    }
+    // Overview link: href is a prefix of current path, and next char is '/' or nothing
+    const isOverview = location.pathname.startsWith(target.pathname)
+      && location.pathname.charAt(target.pathname.length) === '/';
+    if (isOverview) {
+      return pathMatch && queryMatch;
+    }
+    // All other links: startsWith logic
+    const dir = target.pathname.endsWith('/') ? target.pathname : target.pathname + '/';
+    const pathStart = location.pathname === target.pathname || location.pathname.startsWith(dir);
+    return pathStart && queryMatch;
   };
 };
 
