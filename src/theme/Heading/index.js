@@ -15,15 +15,6 @@ export default function Heading({as: Tag = 'h2', id, children, ...props}) {
   return (
     <Tag id={id} className={className} {...props}>
       {children}
-      {id && (
-        <a
-          href={`#${id}`}
-          className="govuk-link app-heading-anchor"
-          aria-label={`Direct link to ${typeof children === 'string' ? children : 'heading'}`}
-        >
-          #
-        </a>
-      )}
     </Tag>
   );
 }
