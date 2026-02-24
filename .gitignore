@@ -21,3 +21,5 @@ yarn-error.log*
 
 # GOV.UK static assets copied from govuk-frontend at build time
 static/assets/
+
+*.tmp*

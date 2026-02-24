@@ -91,6 +91,13 @@ module.exports = function themeGovuk(context, options) {
         return path.resolve(pkgDir, main);
       }
 
+      // Use MiniCssExtractPlugin for production/server builds, style-loader for dev/client
+      let MiniCssExtractPlugin;
+      if (!isServer && process.env.NODE_ENV === 'production') {
+        MiniCssExtractPlugin = require('mini-css-extract-plugin');
+        if (!config.plugins) config.plugins = [];
+        config.plugins.push(new MiniCssExtractPlugin({ filename: 'assets/css/govuk-theme.[contenthash].css' }));
+      }
       return {
         // Also resolve webpack loaders from the theme's own node_modules.
         // When consumed via file: (local dev), loaders like style-loader,
@@ -212,7 +219,9 @@ module.exports = function themeGovuk(context, options) {
             {
               test: /\.scss$/,
               use: [
-                'style-loader',
+                (!isServer && process.env.NODE_ENV === 'production')
+                  ? require('mini-css-extract-plugin').loader
+                  : 'style-loader',
                 {
                   loader: 'css-loader',
                   options: {
@@ -234,10 +243,6 @@ module.exports = function themeGovuk(context, options) {
                   loader: 'sass-loader',
                   options: {
                     implementation: require(require.resolve('sass', { paths: [siteDir] })),
-                    // Override GOV.UK asset path to include the Docusaurus baseUrl.
-                    // The default '../../assets/' produces URLs without baseUrl,
-                    // causing 404s when baseUrl is not '/'.
-                    // Only prepend for SCSS/Sass files — plain CSS can't use Sass variables.
                     additionalData: (content, loaderContext) => {
                       if (/\.scss$|\.sass$/.test(loaderContext.resourcePath)) {
                         return `$govuk-assets-path: '${baseUrl}assets/';\n` + content;

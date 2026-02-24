@@ -41,5 +41,8 @@
   },
   "engines": {
     "node": ">=18.0"
+  },
+  "devDependencies": {
+    "mini-css-extract-plugin": "^2.10.0"
   }
 }

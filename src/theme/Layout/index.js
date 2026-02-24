@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../css/theme.scss';
 import {SkipLink, Header, Footer, PhaseBanner, ServiceNavigation, NavigationMenu} from '@not-govuk/simple-components';
 import {useLocation} from '@docusaurus/router';
 import Head from '@docusaurus/Head';
