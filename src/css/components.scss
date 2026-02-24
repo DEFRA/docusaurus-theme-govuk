@@ -29,7 +29,7 @@
   border-bottom: 1px solid #b1b4b6;
   font-size: 0.875rem;
   font-weight: 700;
-  font-family: 'GDS Transport', arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 .app-code-block__pre {
@@ -38,7 +38,7 @@
   overflow: auto;
   font-size: 0.875rem;
   line-height: 1.6;
-  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  font-family: Menlo, Consolas, 'Courier New', monospace;
   position: relative;
   border: 1px solid #b1b4b6;
   margin: 0;
@@ -54,7 +54,7 @@
   border-radius: 0;
   background: #f3f2f1;
   cursor: pointer;
-  font-family: 'GDS Transport', arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   color: #0b0c0c;
 
   &:hover {

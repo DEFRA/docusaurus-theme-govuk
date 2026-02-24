@@ -9,12 +9,13 @@
 
 /*
  * Set the default font on the body so that ALL elements
- * (header, footer, service-nav, etc.) inherit GDS Transport.
+ * (header, footer, service-nav, etc.) inherit the same stack.
  * The prose-scope only covers content inside .app-prose-scope;
  * without this, outer chrome inherits the browser default serif.
+ * GDS Transport is not bundled — Helvetica/Arial is used instead.
  */
 body {
-  font-family: 'GDS Transport', arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 /*

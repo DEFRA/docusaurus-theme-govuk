@@ -10,7 +10,7 @@ A Docusaurus 3 theme that applies the [GOV.UK Design System](https://design-syst
 - Syntax-highlighted code blocks with copy button
 - Admonition blocks (:::note, :::warning, etc.) rendered as GOV.UK InsetText / WarningText
 - 404 page with GOV.UK styling
-- Bundled GDS Transport fonts and GOV.UK static assets
+- GOV.UK static assets included (GDS Transport is **not** bundled — the theme uses Helvetica/Arial)
 - Compatible with React 18 and React 19
 
 
