@@ -98,10 +98,6 @@ Navigation is configured in `govuk.config.js` with a 3-level structure:
     {
       text: 'Documentation',
       href: '/',
-      sidebar: [  // Sidebar for all doc pages
-        { text: 'Introduction', href: '/' },
-        { text: 'Components', href: '/components' },
-      ],
     },
     {
       text: 'Examples',
