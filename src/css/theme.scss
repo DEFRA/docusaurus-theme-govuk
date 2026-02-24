@@ -16,3 +16,18 @@
 body {
   font-family: 'GDS Transport', arial, sans-serif;
 }
+
+/*
+ * Sticky footer: Docusaurus inserts a #__docusaurus wrapper between body
+ * and our layout, breaking GOV.UK Frontend's flex sticky-footer chain.
+ * Rather than patching the chain, own the full-height context here.
+ */
+.govuk-template--rebranded {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.govuk-template--rebranded > .govuk-width-container {
+  flex: 1 0 auto;
+}
