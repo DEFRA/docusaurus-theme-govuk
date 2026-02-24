@@ -137,13 +137,16 @@ export default function Layout(props) {
         <SkipLink for="main-content">Skip to main content</SkipLink>
 
         <Header
-          govUK
           rebrand
+          organisationText="Defra DDTS"
+          organisationHref="https://github.com/defra"
+        />
+
+        <ServiceNavigation 
+          items={serviceNavItems}
           serviceName={header.serviceName}
           serviceHref={withBase(header.serviceHref || '/')}
         />
-
-        <ServiceNavigation items={serviceNavItems} />
 
         <div className="govuk-width-container">
           {phaseBanner && (
@@ -174,7 +177,7 @@ export default function Layout(props) {
         </div>
 
         {!noFooter && (
-          <Footer govUK rebrand meta={footer.meta} />
+          <Footer rebrand meta={footer.meta} />
         )}
       </div>
     </LayoutProvider>
