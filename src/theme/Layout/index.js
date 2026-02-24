@@ -138,8 +138,8 @@ export default function Layout(props) {
 
         <Header
           rebrand
-          organisationText="Defra DDTS"
-          organisationHref="https://github.com/defra"
+          organisationText={header.organisationText}
+          organisationHref={header.organisationHref}
         />
 
         <ServiceNavigation 

@@ -63,6 +63,8 @@ module.exports = {
       header: {
         serviceName: 'My Service',
         serviceHref: '/',
+        organisationText: 'My Organisation',
+        organisationHref: 'https://example.gov.uk',
       },
 
       navigation: [
@@ -108,6 +110,8 @@ module.exports = {
 |----------|------|-------------|
 | `serviceName` | `string` | Service name displayed in the GOV.UK header |
 | `serviceHref` | `string` | Link for the service name (default: `/`) |
+| `organisationText` | `string` | Organisation name displayed in the header crown block |
+| `organisationHref` | `string` | URL the organisation name links to |
 
 #### `themeConfig.govuk.navigation`
 
