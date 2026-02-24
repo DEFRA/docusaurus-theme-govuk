@@ -43,9 +43,13 @@ export const useIsActive = () => {
 
   return (href, exact = true) => {
     const target = URI.parse(href, location.pathname);
-    const pathMatch = location.pathname === target.pathname;
+    const dir = target.pathname.endsWith('/') ? target.pathname : target.pathname + '/';
+    // Root path '/' should only match exactly, not as a prefix for all paths
+    const pathStart = target.pathname === '' || (target.pathname !== '/' && location.pathname.startsWith(dir));
+    const pathMatch = target.pathname === '' || location.pathname === target.pathname;
     const queryMatch = includes(location.query, target.query);
-    return pathMatch && queryMatch;
+    const activeExact = !!(pathMatch && queryMatch);
+    return exact ? activeExact : !!(activeExact || (pathStart && queryMatch));
   };
 };
 
