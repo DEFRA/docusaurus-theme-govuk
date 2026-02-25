@@ -69,17 +69,23 @@ module.exports = {
 
       navigation: [
         {
+          // Auto sidebar: headings from docs/index.md become sidebar items
           text: 'Documentation',
           href: '/',
+          sidebar: 'auto',
+        },
+        {
+          // Hardcoded sidebar: full control over labels, ordering, and nesting
+          text: 'API Reference',
+          href: '/api',
           sidebar: [
-            { text: 'Introduction', href: '/' },
-            { text: 'Getting Started', href: '/getting-started' },
+            { text: 'Introduction', href: '/api' },
             {
-              text: 'API Reference',
-              href: '/api',
+              text: 'Methods',
+              href: '/api/methods',
               items: [
-                { text: 'Methods', href: '/methods' },
-                { text: 'Events', href: '/events' },
+                { text: 'Initialise', href: '/api/methods#initialise' },
+                { text: 'Destroy', href: '/api/methods#destroy' },
               ],
             },
           ],
@@ -121,14 +127,14 @@ Array of top-level navigation items. Each item appears in the Service Navigation
 |----------|------|-------------|
 | `text` | `string` | Navigation link text |
 | `href` | `string` | Base path for this section |
-| `sidebar` | `array` | Optional sidebar items for this section |
+| `sidebar` | `array \| 'auto'` | Optional. Sidebar items for this section, or `'auto'` to generate from headings (see [Sidebar Configuration](#sidebar-configuration)) |
 
-Each `sidebar` item:
+When `sidebar` is an array, each item:
 
 | Property | Type | Description |
 |----------|------|-------------|
 | `text` | `string` | Sidebar link text |
-| `href` | `string` | Path relative to the parent navigation `href` |
+| `href` | `string` | Path for this item (absolute, e.g. `/api/methods`) |
 | `items` | `array` | Optional nested sidebar items (one level of nesting) |
 
 #### `themeConfig.govuk.phaseBanner`
@@ -153,6 +159,51 @@ The sidebar supports up to 3 levels:
 1. **Level 1**: Service Navigation (top bar)
 2. **Level 2**: Sidebar items
 3. **Level 3**: Nested sidebar items (collapsible groups)
+
+### Hardcoded sidebar
+
+Pass an array to `sidebar` to define the structure explicitly. This gives full control over labels, ordering, and anchor links:
+
+```js
+sidebar: [
+  { text: 'Overview', href: '/api' },
+  {
+    text: 'Constructor',
+    href: '/api#constructor',
+    items: [
+      { text: 'Options', href: '/api#options' },
+    ],
+  },
+]
+```
+
+Nested groups are collapsible. A group is expanded when the current URL hash matches either the group's own `href` anchor or any child anchor.
+
+### Auto sidebar
+
+Set `sidebar: 'auto'` on a navigation section to generate the sidebar automatically from the section's corresponding Markdown document at build time:
+
+```js
+{
+  text: 'API Reference',
+  href: '/api',
+  sidebar: 'auto',
+}
+```
+
+The theme reads `docs/<slug>.md` (or `.mdx`) where `<slug>` is derived from `href` (e.g. `href: '/api'` → `docs/api.md`). It parses the document's headings and builds the sidebar as follows:
+
+- `##` (h2) headings become top-level sidebar items
+- `###` (h3) headings become nested items under the preceding h2
+- Heading text is stripped of Markdown syntax (bold, italic, inline code, links) to produce plain-text labels
+
+The sidebar is resolved once at build time and serialised into the site configuration. No runtime file reads occur.
+
+#### Limitations
+
+- Only h2 and h3 headings are included; h4 and deeper are ignored.
+- The document must be in the `docs/` directory at the root of your Docusaurus site.
+- Heading IDs set via the `{#custom-id}` syntax are not yet respected — the generated anchor will use the slugified heading text.
 
 ## Overriding Components
 
