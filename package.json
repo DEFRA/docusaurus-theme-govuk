@@ -32,9 +32,11 @@
     "clsx": "^2.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^7.1.0",
+    "github-slugger": "^2.0.0",
     "govuk-frontend": "^5.14.0",
     "postcss-loader": "^8.2.0",
     "prism-react-renderer": "^2.3.0",
+    "remove-markdown": "^0.6.3",
     "sass": "^1.97.0",
     "sass-loader": "^16.0.0",
     "style-loader": "^4.0.0"

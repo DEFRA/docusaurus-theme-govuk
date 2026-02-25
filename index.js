@@ -1,29 +1,16 @@
 const path = require('path');
 const fs = require('fs');
-
-// Convert a heading text string to a URL-safe anchor id,
-// matching the rules Docusaurus / remark-heading-id applies:
-//   1. Strip inline code backticks and common markdown emphasis chars
-//   2. Lowercase
-//   3. Collapse whitespace to hyphens
-//   4. Remove any character that is not alphanumeric, hyphen, or underscore
-function headingToAnchor(text) {
-  return text
-    .replace(/`([^`]*)`/g, '$1')   // strip inline code markers, keep content
-    .replace(/[*_[\]()!]/g, '')    // strip other markdown inline syntax
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w-]/g, '')
-    .replace(/-{2,}/g, '-')
-    .replace(/^-|-$/g, '');
-}
+// remove-markdown strips markdown syntax leaving plain text — used for sidebar labels.
+const removeMarkdown = require('remove-markdown');
+// github-slugger is what Docusaurus itself uses internally to generate heading
+// anchor IDs. Using the same library guarantees our sidebar hrefs match the
+// IDs emitted in the built HTML. A stateful GithubSlugger instance also
+// handles deduplication automatically (second "Options" → "options-1", etc.).
+const GithubSlugger = require('github-slugger');
 
 // Parse markdown content and build a sidebar config from h2/h3 headings.
 // h2 → top-level items; h3 → nested items under the preceding h2.
 // Items include both the display text and an anchor href (basePath + '#' + anchor).
-// Duplicate slugs are deduplicated with a `-N` suffix matching Docusaurus's own
-// remark-slug behaviour (second occurrence → slug-1, third → slug-2, etc.)
 function parseHeadingsToSidebar(content, basePath) {
   // Strip YAML front-matter only if the file genuinely starts with ---
   // (do NOT use a greedy regex: api.md and other docs use --- as horizontal rules)
@@ -37,19 +24,9 @@ function parseHeadingsToSidebar(content, basePath) {
   }
   const lines = stripped.split('\n');
 
-  // Track how many times each base slug has been used so we can apply the
-  // same -N deduplication suffix that Docusaurus's remark-slug produces.
-  // Use Object.create(null) to avoid prototype property collisions (e.g. a
-  // heading called "constructor" would otherwise hit Object.prototype.constructor).
-  const slugCount = Object.create(null);
-  function deduplicatedSlug(base) {
-    if (slugCount[base] === undefined) {
-      slugCount[base] = 0;
-      return base;
-    }
-    slugCount[base] += 1;
-    return `${base}-${slugCount[base]}`;
-  }
+  // One slugger instance per document — its internal counter provides the
+  // same -1, -2 deduplication that Docusaurus emits in the built HTML.
+  const slugger = new GithubSlugger();
 
   const items = [];
   let currentH2 = null;
@@ -59,13 +36,15 @@ function parseHeadingsToSidebar(content, basePath) {
     const h3 = line.match(/^### (.+)$/);
 
     if (h2) {
-      const text = h2[1].trim();
-      const anchor = deduplicatedSlug(headingToAnchor(text));
+      const raw = h2[1].trim();
+      const text = removeMarkdown(raw);
+      const anchor = slugger.slug(raw);
       currentH2 = { text, href: `${basePath}#${anchor}`, _anchor: anchor };
       items.push(currentH2);
     } else if (h3 && currentH2) {
-      const text = h3[1].trim();
-      const anchor = deduplicatedSlug(headingToAnchor(text));
+      const raw = h3[1].trim();
+      const text = removeMarkdown(raw);
+      const anchor = slugger.slug(raw);
       if (!currentH2.items) currentH2.items = [];
       currentH2.items.push({ text, href: `${basePath}#${anchor}` });
     }
