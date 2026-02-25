@@ -9,7 +9,17 @@
 
 .app-layout-sidebar__nav {
   width: 250px;
+  // Padding-left gives room for the nav's active indicator (margin-left: -14px)
+  // which would otherwise be clipped by the overflow-y containment.
+  padding-left: 15px;
   flex-shrink: 0;
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  // Always reserve the scrollbar gutter so expanding subnav items don't
+  // cause a horizontal layout shift when the scrollbar appears.
+  scrollbar-gutter: stable;
 }
 
 .app-layout-sidebar__content {
