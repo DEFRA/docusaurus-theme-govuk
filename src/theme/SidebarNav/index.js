@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from '@docusaurus/router';
 
 /**
- * Hash-aware sidebar navigation for anchor-based (auto-generated) sidebars.
+ * Hash- and pathname-aware sidebar navigation.
+ *
+ * Works for both anchor-based (auto-generated) and page-based (manual) sidebars.
  *
  * SSR / no-JS: all groups are rendered expanded so content is accessible.
- * CSR after hydration: exactly one group expands based on the URL hash.
- *   - hash matches the group's h2 anchor → that group expands
- *   - hash matches any child's anchor → that group expands
- *   - no hash → all groups collapse
+ * CSR after hydration:
+ *   - Anchor hrefs (e.g. /api#constructor): active when pathname AND hash both match
+ *   - Page hrefs (e.g. /building-a-plugin): active when pathname matches
+ *   - Groups expand when the group itself or any child is active
  *
  * State sentinel:
- *   null  = not yet hydrated (SSR or before first useEffect) → expand all
- *   ''    = JS loaded, no hash → collapse all
- *   str   = JS loaded, hash present → expand matching group only
+ *   null = not yet hydrated → expand all groups (SSR safe)
+ *   str  = JS loaded (empty string means no hash present)
  */
 export default function SidebarNav({ items }) {
   const [hash, setHash] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     const update = () => setHash(window.location.hash.slice(1));
@@ -24,6 +27,28 @@ export default function SidebarNav({ items }) {
     return () => window.removeEventListener('hashchange', update);
   }, []);
 
+  // Split an href into its path and anchor components.
+  function parseHref(href) {
+    if (!href) return { path: '', anchor: '' };
+    const idx = href.indexOf('#');
+    if (idx === -1) return { path: href, anchor: '' };
+    return { path: href.slice(0, idx) || '/', anchor: href.slice(idx + 1) };
+  }
+
+  // Return true if the given href matches the current browser location.
+  //   Anchor hrefs: both pathname and hash must match.
+  //   Page hrefs:   pathname match is sufficient (exact or child path).
+  function isActive(href) {
+    const { path, anchor } = parseHref(href);
+    if (anchor) {
+      return location.pathname === path && hash === anchor;
+    }
+    return (
+      path !== '' &&
+      (location.pathname === path || location.pathname.startsWith(path + '/'))
+    );
+  }
+
   const cls = 'not-govuk-navigation-menu';
   const lCls = `${cls}__list`;
 
@@ -31,23 +56,16 @@ export default function SidebarNav({ items }) {
     <nav className={cls}>
       <ul className={lCls}>
         {items.map((item, i) => {
-          const anchor = item.href ? (item.href.split('#')[1] ?? '') : '';
           const hasChildren = Array.isArray(item.items) && item.items.length > 0;
-          const childAnchors = hasChildren
-            ? item.items.map(sub => sub.href ? (sub.href.split('#')[1] ?? '') : '')
-            : [];
 
-          // null  → not yet hydrated, expand everything
-          // ''    → no hash, collapse everything
-          // value → expand if hash is this group's h2 anchor or any child anchor
-          const hashMatchesGroup =
-            hash !== '' && (
-              hash === anchor ||
-              childAnchors.includes(hash)
-            );
+          // Pre-hydration (hash === null): expand everything so content is
+          // accessible without JS. After hydration: expand only if this group
+          // or one of its children is the active location.
+          const expanded =
+            hasChildren &&
+            (hash === null || isActive(item.href) || item.items.some(sub => isActive(sub.href)));
 
-          const expanded = hasChildren && (hash === null || hashMatchesGroup);
-          const active = hash !== null && hashMatchesGroup;
+          const active = hash !== null && isActive(item.href);
 
           return (
             <li
@@ -60,8 +78,7 @@ export default function SidebarNav({ items }) {
               {expanded && (
                 <ul className={`${lCls}__subitems`}>
                   {item.items.map((sub, j) => {
-                    const subAnchor = sub.href ? (sub.href.split('#')[1] ?? '') : '';
-                    const subActive = hash !== null && hash === subAnchor;
+                    const subActive = hash !== null && isActive(sub.href);
                     return (
                       <li
                         key={j}
@@ -82,3 +99,4 @@ export default function SidebarNav({ items }) {
     </nav>
   );
 }
+

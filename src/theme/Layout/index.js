@@ -1,6 +1,6 @@
 import React from 'react';
 import '../../css/theme.scss';
-import {SkipLink, Header, Footer, PhaseBanner, ServiceNavigation, NavigationMenu} from '@not-govuk/simple-components';
+import {SkipLink, Header, Footer, PhaseBanner, ServiceNavigation} from '@not-govuk/simple-components';
 import SidebarNav from '../SidebarNav';
 import {useLocation} from '@docusaurus/router';
 import Head from '@docusaurus/Head';
@@ -141,11 +141,6 @@ export default function Layout(props) {
       }))
     : null;
 
-  // Anchor-based sidebars (auto-generated) use a hash-aware component.
-  // Page-based sidebars (manually configured arrays) use NavigationMenu which
-  // uses React Router's active detection for sub-page expansion.
-  const isAnchorSidebar = effectiveSidebar?._auto === true;
-
   // Convert navigation to service navigation format (Level 1 only)
   const serviceNavItems = navigation.map(item => ({
     href: withBase(item.href),
@@ -198,9 +193,7 @@ export default function Layout(props) {
             {sidebarItems ? (
               <div className="app-layout-sidebar">
                 <aside className="app-layout-sidebar__nav">
-                  {isAnchorSidebar
-                    ? <SidebarNav items={sidebarItems} />
-                    : <NavigationMenu items={sidebarItems} />}
+                  <SidebarNav items={sidebarItems} />
                 </aside>
                 <div className="app-layout-sidebar__content">
                   {children}
