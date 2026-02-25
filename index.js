@@ -22,6 +22,8 @@ function headingToAnchor(text) {
 // Parse markdown content and build a sidebar config from h2/h3 headings.
 // h2 → top-level items; h3 → nested items under the preceding h2.
 // Items include both the display text and an anchor href (basePath + '#' + anchor).
+// Duplicate slugs are deduplicated with a `-N` suffix matching Docusaurus's own
+// remark-slug behaviour (second occurrence → slug-1, third → slug-2, etc.)
 function parseHeadingsToSidebar(content, basePath) {
   // Strip YAML front-matter only if the file genuinely starts with ---
   // (do NOT use a greedy regex: api.md and other docs use --- as horizontal rules)
@@ -35,6 +37,20 @@ function parseHeadingsToSidebar(content, basePath) {
   }
   const lines = stripped.split('\n');
 
+  // Track how many times each base slug has been used so we can apply the
+  // same -N deduplication suffix that Docusaurus's remark-slug produces.
+  // Use Object.create(null) to avoid prototype property collisions (e.g. a
+  // heading called "constructor" would otherwise hit Object.prototype.constructor).
+  const slugCount = Object.create(null);
+  function deduplicatedSlug(base) {
+    if (slugCount[base] === undefined) {
+      slugCount[base] = 0;
+      return base;
+    }
+    slugCount[base] += 1;
+    return `${base}-${slugCount[base]}`;
+  }
+
   const items = [];
   let currentH2 = null;
 
@@ -44,12 +60,12 @@ function parseHeadingsToSidebar(content, basePath) {
 
     if (h2) {
       const text = h2[1].trim();
-      const anchor = headingToAnchor(text);
+      const anchor = deduplicatedSlug(headingToAnchor(text));
       currentH2 = { text, href: `${basePath}#${anchor}`, _anchor: anchor };
       items.push(currentH2);
     } else if (h3 && currentH2) {
       const text = h3[1].trim();
-      const anchor = headingToAnchor(text);
+      const anchor = deduplicatedSlug(headingToAnchor(text));
       if (!currentH2.items) currentH2.items = [];
       currentH2.items.push({ text, href: `${basePath}#${anchor}` });
     }
