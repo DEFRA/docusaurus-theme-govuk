@@ -1,6 +1,63 @@
 const path = require('path');
 const fs = require('fs');
 
+// Convert a heading text string to a URL-safe anchor id,
+// matching the rules Docusaurus / remark-heading-id applies:
+//   1. Strip inline code backticks and common markdown emphasis chars
+//   2. Lowercase
+//   3. Collapse whitespace to hyphens
+//   4. Remove any character that is not alphanumeric, hyphen, or underscore
+function headingToAnchor(text) {
+  return text
+    .replace(/`([^`]*)`/g, '$1')   // strip inline code markers, keep content
+    .replace(/[*_[\]()!]/g, '')    // strip other markdown inline syntax
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w-]/g, '')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+// Parse markdown content and build a sidebar config from h2/h3 headings.
+// h2 → top-level items; h3 → nested items under the preceding h2.
+// Items include both the display text and an anchor href (basePath + '#' + anchor).
+function parseHeadingsToSidebar(content, basePath) {
+  // Strip YAML front-matter only if the file genuinely starts with ---
+  // (do NOT use a greedy regex: api.md and other docs use --- as horizontal rules)
+  let stripped = content;
+  if (content.startsWith('---\n') || content.startsWith('---\r\n')) {
+    const closeIdx = content.indexOf('\n---', 3);
+    if (closeIdx !== -1) {
+      // Skip past the closing --- and any trailing newline
+      stripped = content.slice(closeIdx + 4).replace(/^\n/, '');
+    }
+  }
+  const lines = stripped.split('\n');
+
+  const items = [];
+  let currentH2 = null;
+
+  for (const line of lines) {
+    const h2 = line.match(/^## (.+)$/);
+    const h3 = line.match(/^### (.+)$/);
+
+    if (h2) {
+      const text = h2[1].trim();
+      const anchor = headingToAnchor(text);
+      currentH2 = { text, href: `${basePath}#${anchor}`, _anchor: anchor };
+      items.push(currentH2);
+    } else if (h3 && currentH2) {
+      const text = h3[1].trim();
+      const anchor = headingToAnchor(text);
+      if (!currentH2.items) currentH2.items = [];
+      currentH2.items.push({ text, href: `${basePath}#${anchor}` });
+    }
+  }
+
+  return items.map(({ _anchor, ...item }) => item);
+}
+
 module.exports = function themeGovuk(context, options) {
   const siteDir = context.siteDir;
 
@@ -20,6 +77,41 @@ module.exports = function themeGovuk(context, options) {
 
   // The base URL for this Docusaurus site (e.g. '/interactive-map/')
   const baseUrl = context.baseUrl || '/';
+
+  // Pre-resolve sidebar: 'auto' entries in the navigation config by mutating
+  // the themeConfig object in-place. This runs synchronously before Docusaurus
+  // serialises siteConfig into the client bundle, so useDocusaurusContext()
+  // will already see the resolved sidebar arrays — no new client imports needed.
+  const govukNav = context.siteConfig.themeConfig?.govuk?.navigation;
+  if (Array.isArray(govukNav)) {
+    const docsDir = path.join(siteDir, 'docs');
+    for (const section of govukNav) {
+      if (section.sidebar !== 'auto') continue;
+      const href = section.href || '/';
+      const slug = href.replace(/^\//, '') || 'index';
+      let resolved = false;
+      for (const ext of ['.md', '.mdx']) {
+        const candidate = path.join(docsDir, `${slug}${ext}`);
+        if (fs.existsSync(candidate)) {
+          section.sidebar = {
+            _auto: true,
+            items: parseHeadingsToSidebar(
+              fs.readFileSync(candidate, 'utf-8'),
+              href
+            ),
+          };
+          resolved = true;
+          break;
+        }
+      }
+      if (!resolved) {
+        console.warn(
+          `[docusaurus-theme-govuk] sidebar: "auto" on "${href}" — could not find markdown file at ${path.join(docsDir, slug)}.(md|mdx)`
+        );
+        section.sidebar = { _auto: true, items: [] };
+      }
+    }
+  }
 
   return {
     name: 'docusaurus-theme-govuk',
@@ -108,6 +200,11 @@ module.exports = function themeGovuk(context, options) {
         resolve: {
           extensions: ['.mjs', '.js', '.jsx', '.json', '.scss'],
           fullySpecified: false,
+          // When the theme is consumed via a file: symlink, webpack resolves
+          // imports from the theme's real directory which has no node_modules.
+          // Adding the site's node_modules here ensures @docusaurus/* and any
+          // other peer dependency imports are found regardless of symlink depth.
+          modules: ['node_modules', path.resolve(siteDir, 'node_modules')],
           alias: {
             // Deduplicate React — always use the consumer's copy
             'react': resolveFromSite('react'),
