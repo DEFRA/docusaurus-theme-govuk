@@ -98,3 +98,132 @@
 .app-text-secondary {
   color: #505a5f;
 }
+
+// Search bar overlaid on the top-right of the GOV.UK header bar
+.app-header-wrapper {
+  position: relative;
+}
+
+.app-header-search {
+  position: absolute;
+  right: 15px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+
+  // accessible-autocomplete wrapper
+  .autocomplete__wrapper {
+    position: relative;
+    width: 220px;
+  }
+
+  // Input field — white border on dark header background
+  .autocomplete__input {
+    width: 100%;
+    height: 32px;
+    padding: 4px 8px;
+    border: 2px solid #fff;
+    border-radius: 0;
+    background: transparent;
+    color: #fff;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.875rem;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    &:focus {
+      background: #fff;
+      color: #0b0c0c;
+      outline: 3px solid #fd0;
+      outline-offset: 0;
+
+      &::placeholder {
+        color: #505a5f;
+      }
+    }
+  }
+
+  // Dropdown menu
+  .autocomplete__menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 2px solid #0b0c0c;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 342px;
+    overflow-y: auto;
+    z-index: 10;
+  }
+
+  // Inline menu variant (not used, but scoped just in case)
+  .autocomplete__menu--inline {
+    position: relative;
+  }
+
+  .autocomplete__option {
+    padding: 8px 12px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.875rem;
+    color: #0b0c0c;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f2f1;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .autocomplete__option--focused,
+  .autocomplete__option:hover {
+    background: #1d70b8;
+    color: #fff;
+    outline: none;
+
+    .app-search__context {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  // Two-line suggestion layout
+  .app-search__title {
+    display: block;
+  }
+
+  .app-search__context {
+    display: block;
+    font-size: 0.75rem;
+    color: #505a5f;
+    margin-top: 2px;
+  }
+
+  .autocomplete__option--no-results {
+    padding: 8px 12px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.875rem;
+    color: #505a5f;
+  }
+
+  // Status / hint text (visually hidden assistive text)
+  .autocomplete__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+

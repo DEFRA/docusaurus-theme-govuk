@@ -275,7 +275,6 @@ module.exports = function themeGovuk(context, options) {
               );
             }
           ),
-          // Null out the font SCSS wrappers from @not-govuk/page.
           // GovUKPage.scss imports gds-transport.css, and NotGovUKPage.scss
           // imports roboto.css. These contain @font-face rules with relative
           // URLs that, when inlined by sass and processed by css-loader,
@@ -294,6 +293,11 @@ module.exports = function themeGovuk(context, options) {
           rules: [
             {
               test: /\.m?js$/,
+              // `javascript/auto` lets webpack use its default JS pipeline (including
+              // Docusaurus's babel-loader rule) instead of treating every .mjs file
+              // as strict ESM. Without this, files like tslib.es6.mjs cause
+              // "Module parse failed: Unexpected token" because no loader is matched.
+              type: 'javascript/auto',
               resolve: {
                 fullySpecified: false,
               },
