@@ -10,8 +10,7 @@ export default function Homepage() {
 
   return (
     <Layout title={siteConfig.title} description={siteConfig.tagline}>
-      {/* Masthead is injected by Layout on the root path. */}
-      {/* Add any homepage body content here if needed. */}
+      {/* Masthead is injected by Layout on the root path. This is because we need to adjust the styling for the header/nav, so it must live in the global Layout. */}
     </Layout>
   );
 }
