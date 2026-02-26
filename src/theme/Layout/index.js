@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import '../../css/theme.scss';
 import {SkipLink, Footer, PhaseBanner, ServiceNavigation} from '@not-govuk/simple-components';
 import Header from '../Header';
@@ -140,7 +140,7 @@ export default function Layout(props) {
   const activeSection = getActiveSection(pathname, navigation);
   const basePath = activeSection?.href || '/';
   const effectiveSidebar = activeSection ? getEffectiveSidebar(activeSection) : null;
-  const sidebarItems = effectiveSidebar
+  const staticSidebarItems = effectiveSidebar
     ? resolveSidebarPaths(effectiveSidebar.items, basePath).map(item => ({
         ...item,
         href: withBase(item.href),
@@ -149,6 +149,43 @@ export default function Layout(props) {
         }),
       }))
     : null;
+
+  // When on a sub-page of an auto-sidebar section, build the sidebar from the
+  // current page's own headings rather than the section index's headings.
+  // null = not yet scanned (SSR safe — sidebar renders only after hydration).
+  const [autoItems, setAutoItems] = useState(null);
+  const isSubPage = effectiveSidebar?._auto && pathname !== basePath;
+
+  useEffect(() => {
+    if (!isSubPage) {
+      setAutoItems(null);
+      return;
+    }
+    // Read h2/h3 elements from the article rendered in main content.
+    const article = document.querySelector('#main-content article, #main-content .markdown, #main-content');
+    if (!article) return;
+    const headings = Array.from(article.querySelectorAll('h2, h3'));
+    const items = [];
+    let currentH2 = null;
+    for (const el of headings) {
+      const id = el.id;
+      if (!id) continue;
+      const text = el.textContent?.trim() ?? '';
+      const href = withBase(`${pathname}#${id}`);
+      if (el.tagName === 'H2') {
+        currentH2 = {text, href, items: []};
+        items.push(currentH2);
+      } else if (el.tagName === 'H3' && currentH2) {
+        currentH2.items.push({text, href});
+      }
+    }
+    setAutoItems(items.length > 0 ? items : []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  const sidebarItems = isSubPage
+    ? (autoItems && autoItems.length > 0 ? autoItems : null)
+    : staticSidebarItems;
 
   // Convert navigation to service navigation format (Level 1 only)
   const serviceNavItems = navigation.map(item => ({
