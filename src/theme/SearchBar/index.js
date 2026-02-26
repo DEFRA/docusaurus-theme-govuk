@@ -2,6 +2,10 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import { useHistory } from '@docusaurus/router';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+// github-slugger is Docusaurus's own heading-anchor dependency.
+// Importing it directly ensures our anchor derivation never drifts from
+// the IDs Docusaurus writes into the built HTML.
+import GithubSlugger from 'github-slugger';
 // @generated module emitted by @easyops-cn/docusaurus-search-local at build time;
 // contains the hashed URL of the search index JSON (e.g. "search-index-fa7ba571.json").
 // eslint-disable-next-line import/no-unresolved
@@ -133,12 +137,19 @@ function SearchBarInner() {
             : []),
         ];
 
+        // Derive the anchor using github-slugger — the same library Docusaurus
+        // uses when writing heading IDs into the built HTML, so they always match.
+        // Page-root entries (have `b`) live at the page URL with no hash.
+        // Heading/paragraph entries (have `h` field, even when empty) deep-link.
+        const anchor = ('h' in doc && !('b' in doc))
+          ? new GithubSlugger().slug(label)
+          : null;
+
         results.push({
           ...doc,
           _label: label,
           _context: contextParts.length ? contextParts.join(' › ') : null,
-          // Deep-link URL: include the section anchor hash when available.
-          _url: doc.h ? `${doc.u}#${doc.h}` : doc.u,
+          _url: anchor ? `${doc.u}#${anchor}` : doc.u,
         });
         if (results.length === 8) break;
       }
