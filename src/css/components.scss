@@ -99,6 +99,69 @@
   color: #505a5f;
 }
 
+// Ensure govuk-service-navigation--inverse styles apply in our rebranded context.
+// govuk-frontend compiles these inside @include _govuk-rebrand which may not
+// resolve correctly depending on SCSS load order — duplicate the rules explicitly.
+.govuk-template--rebranded .govuk-service-navigation--inverse {
+  background-color: #1d70b8;
+  border-bottom: none;
+  color: #fff;
+
+  .govuk-width-container {
+    border-width: 1px 0;
+    border-style: solid;
+    border-color: #8eb8dc;
+  }
+
+  .govuk-service-navigation__link {
+    color: #fff;
+
+    &:link,
+    &:visited {
+      color: #fff;
+    }
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .govuk-service-navigation__item,
+  .govuk-service-navigation__service-name {
+    border-color: #fff;
+  }
+}
+
+// Homepage masthead — a blue welcome band that appears between the service
+// navigation and the main content on the homepage only. The background matches
+// the GOV.UK rebrand header/service-navigation blue (#1d70b8 = $govuk-brand-colour)
+// so that all three elements read as one unified block.
+.app-masthead {
+  background-color: #1d70b8;
+  // Kill any top border that service-navigation might leave
+  border-top: none;
+}
+
+.app-masthead__container {
+  padding-top: 40px;    // govuk-spacing(7)
+}
+
+.app-masthead__title {
+  color: #fff;
+
+  // Override the default dark govuk heading colour
+  &.govuk-heading-xl {
+    color: #fff;
+    margin-bottom: 0;
+  }
+}
+
+.app-masthead__description {
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
 // Search bar rendered as a flex sibling inside govuk-header__container.
 // govuk-frontend's container uses a clearfix float layout; we switch it to
 // flex so children line up in a row and can be vertically centred.

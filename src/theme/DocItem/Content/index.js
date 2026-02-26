@@ -6,7 +6,9 @@ import MDXContent from '@theme/MDXContent';
 function useSyntheticTitle() {
   const {metadata, frontMatter, contentTitle} = useDoc();
   const shouldRender =
-    !frontMatter.hide_title && typeof contentTitle === 'undefined';
+    !frontMatter.hide_title &&
+    typeof contentTitle === 'undefined' &&
+    metadata.slug !== '/';
   if (!shouldRender) {
     return null;
   }
