@@ -197,11 +197,11 @@ export default function Layout(props) {
               <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                   <h1 className="govuk-heading-xl app-masthead__title">
-                    {siteConfig.title}
+                    {siteConfig.tagline || siteConfig.title}
                   </h1>
-                  {siteConfig.tagline && (
-                    <p className="govuk-body-l app-masthead__description">
-                      {siteConfig.tagline}
+                  {homepageConfig.description && (
+                    <p className="app-masthead__description">
+                      {homepageConfig.description}
                     </p>
                   )}
                   <a

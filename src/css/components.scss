@@ -152,15 +152,14 @@
   // Override the default dark govuk heading colour
   &.govuk-heading-xl {
     color: #fff;
+    margin-bottom: 0;
   }
 }
 
 .app-masthead__description {
   color: #fff;
-
-  &.govuk-body-l {
-    color: #fff;
-  }
+  font-size: 1.5rem;
+  line-height: 1.25;
 }
 
 // Search bar rendered as a flex sibling inside govuk-header__container.
