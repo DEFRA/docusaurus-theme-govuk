@@ -380,7 +380,7 @@ module.exports = function themeGovuk(context, options) {
                         path.resolve(__dirname, 'node_modules'),
                       ],
                       quietDeps: true,
-                      silenceDeprecations: ['import', 'if-function'],
+                      silenceDeprecations: ['import'],
                     },
                   },
                 },
