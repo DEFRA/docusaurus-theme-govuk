@@ -188,6 +188,7 @@ export default function Layout(props) {
           items={serviceNavItems}
           serviceName={header.serviceName}
           serviceHref={withBase(header.serviceHref || '/')}
+          classModifiers={isHomepage && homepageConfig ? 'inverse' : undefined}
         />
 
         {isHomepage && homepageConfig && (

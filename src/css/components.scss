@@ -99,6 +99,39 @@
   color: #505a5f;
 }
 
+// Ensure govuk-service-navigation--inverse styles apply in our rebranded context.
+// govuk-frontend compiles these inside @include _govuk-rebrand which may not
+// resolve correctly depending on SCSS load order — duplicate the rules explicitly.
+.govuk-template--rebranded .govuk-service-navigation--inverse {
+  background-color: #1d70b8;
+  border-bottom: none;
+  color: #fff;
+
+  .govuk-width-container {
+    border-width: 1px 0;
+    border-style: solid;
+    border-color: #8eb8dc;
+  }
+
+  .govuk-service-navigation__link {
+    color: #fff;
+
+    &:link,
+    &:visited {
+      color: #fff;
+    }
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .govuk-service-navigation__item,
+  .govuk-service-navigation__service-name {
+    border-color: #fff;
+  }
+}
+
 // Homepage masthead — a blue welcome band that appears between the service
 // navigation and the main content on the homepage only. The background matches
 // the GOV.UK rebrand header/service-navigation blue (#1d70b8 = $govuk-brand-colour)
@@ -111,7 +144,6 @@
 
 .app-masthead__container {
   padding-top: 40px;    // govuk-spacing(7)
-  padding-bottom: 60px; // govuk-spacing(9)
 }
 
 .app-masthead__title {
