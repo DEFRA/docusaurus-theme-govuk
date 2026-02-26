@@ -215,6 +215,18 @@ module.exports = function themeGovuk(context, options) {
             // When installed from npm the theme ships no node_modules of its own,
             // so we must point webpack at the copy already present in the site.
             '@mdx-js/react': resolveFromSite('@mdx-js/react'),
+            // @not-govuk/header restricts subpath imports via its `exports` field.
+            // Our forked Header component imports logos and the SCSS by their dist paths.
+            // Alias them to absolute paths to bypass the exports field restriction.
+            ...((() => {
+              const headerDir = findPkgDir('@not-govuk/header', [siteDir, __dirname]);
+              return {
+                '@not-govuk/header/dist/CrownLogo$': path.join(headerDir, 'dist/CrownLogo.js'),
+                '@not-govuk/header/dist/CrownLogoOld$': path.join(headerDir, 'dist/CrownLogoOld.js'),
+                '@not-govuk/header/dist/CoatLogo$': path.join(headerDir, 'dist/CoatLogo.js'),
+                '@not-govuk/header/assets/Header.scss$': path.join(headerDir, 'assets/Header.scss'),
+              };
+            })()),
           },
         },
         plugins: [
@@ -275,7 +287,6 @@ module.exports = function themeGovuk(context, options) {
               );
             }
           ),
-          // Null out the font SCSS wrappers from @not-govuk/page.
           // GovUKPage.scss imports gds-transport.css, and NotGovUKPage.scss
           // imports roboto.css. These contain @font-face rules with relative
           // URLs that, when inlined by sass and processed by css-loader,
@@ -294,6 +305,11 @@ module.exports = function themeGovuk(context, options) {
           rules: [
             {
               test: /\.m?js$/,
+              // `javascript/auto` lets webpack use its default JS pipeline (including
+              // Docusaurus's babel-loader rule) instead of treating every .mjs file
+              // as strict ESM. Without this, files like tslib.es6.mjs cause
+              // "Module parse failed: Unexpected token" because no loader is matched.
+              type: 'javascript/auto',
               resolve: {
                 fullySpecified: false,
               },

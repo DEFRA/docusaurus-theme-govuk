@@ -98,3 +98,195 @@
 .app-text-secondary {
   color: #505a5f;
 }
+
+// Ensure govuk-service-navigation--inverse styles apply in our rebranded context.
+// govuk-frontend compiles these inside @include _govuk-rebrand which may not
+// resolve correctly depending on SCSS load order — duplicate the rules explicitly.
+.govuk-template--rebranded .govuk-service-navigation--inverse {
+  background-color: #1d70b8;
+  border-bottom: none;
+  color: #fff;
+
+  .govuk-width-container {
+    border-width: 1px 0;
+    border-style: solid;
+    border-color: #8eb8dc;
+  }
+
+  .govuk-service-navigation__link {
+    color: #fff;
+
+    &:link,
+    &:visited {
+      color: #fff;
+    }
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  .govuk-service-navigation__item,
+  .govuk-service-navigation__service-name {
+    border-color: #fff;
+  }
+}
+
+// Homepage masthead — a blue welcome band that appears between the service
+// navigation and the main content on the homepage only. The background matches
+// the GOV.UK rebrand header/service-navigation blue (#1d70b8 = $govuk-brand-colour)
+// so that all three elements read as one unified block.
+.app-masthead {
+  background-color: #1d70b8;
+  // Kill any top border that service-navigation might leave
+  border-top: none;
+}
+
+.app-masthead__container {
+  padding-top: 40px;    // govuk-spacing(7)
+}
+
+.app-masthead__title {
+  color: #fff;
+
+  // Override the default dark govuk heading colour
+  &.govuk-heading-xl {
+    color: #fff;
+    margin-bottom: 0;
+  }
+}
+
+.app-masthead__description {
+  color: #fff;
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+// Search bar rendered as a flex sibling inside govuk-header__container.
+// govuk-frontend's container uses a clearfix float layout; we switch it to
+// flex so children line up in a row and can be vertically centred.
+// margin-left:auto on .app-header-search pushes it to the right edge.
+.govuk-header__container {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.app-header-search {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+
+  // accessible-autocomplete wrapper
+  .autocomplete__wrapper {
+    position: relative;
+    width: 300px;
+  }
+
+  // Input field — always white background with search icon on the left
+  .autocomplete__input {
+    width: 100%;
+    padding: 4px 8px 4px 40px;
+    border: 2px solid #fff;
+    border-radius: 0;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230b0c0c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    background-size: 20px 20px;
+    color: #0b0c0c;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.875rem;
+    box-sizing: border-box;
+
+    &::placeholder {
+      color: #505a5f;
+    }
+
+    &:focus {
+      outline: 3px solid #fd0;
+      outline-offset: 0;
+    }
+  }
+
+  // Dropdown menu
+  .autocomplete__menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 2px solid #0b0c0c;
+    border-radius: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 342px;
+    overflow-y: auto;
+    z-index: 10;
+  }
+
+  // Inline menu variant (not used, but scoped just in case)
+  .autocomplete__menu--inline {
+    position: relative;
+  }
+
+  .autocomplete__option {
+    padding: 8px 12px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.875rem;
+    color: #0b0c0c;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f2f1;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .autocomplete__option--focused,
+  .autocomplete__option:hover {
+    background: #1d70b8;
+    color: #fff;
+    outline: none;
+
+    .app-search__context {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  // Two-line suggestion layout
+  .app-search__title {
+    display: block;
+  }
+
+  .app-search__context {
+    display: block;
+    font-size: 0.75rem;
+    color: #505a5f;
+    margin-top: 2px;
+  }
+
+  .autocomplete__option--no-results {
+    padding: 8px 12px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 0.875rem;
+    color: #505a5f;
+  }
+
+  // Status / hint text (visually hidden assistive text)
+  .autocomplete__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
