@@ -1,7 +1,9 @@
 import React from 'react';
 import '../../css/theme.scss';
-import {SkipLink, Header, Footer, PhaseBanner, ServiceNavigation} from '@not-govuk/simple-components';
+import {SkipLink, Footer, PhaseBanner, ServiceNavigation} from '@not-govuk/simple-components';
+import Header from '../Header';
 import SidebarNav from '../SidebarNav';
+import SearchBar from '@theme/SearchBar';
 import {useLocation} from '@docusaurus/router';
 import Head from '@docusaurus/Head';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
@@ -169,9 +171,13 @@ export default function Layout(props) {
           rebrand
           organisationText={header.organisationText}
           organisationHref={header.organisationHref}
-        />
+        >
+          <div className="app-header-search">
+            <SearchBar />
+          </div>
+        </Header>
 
-        <ServiceNavigation 
+        <ServiceNavigation
           items={serviceNavItems}
           serviceName={header.serviceName}
           serviceHref={withBase(header.serviceHref || '/')}
