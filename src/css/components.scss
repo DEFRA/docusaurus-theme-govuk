@@ -99,6 +99,38 @@
   color: #505a5f;
 }
 
+// Homepage masthead — a blue welcome band that appears between the service
+// navigation and the main content on the homepage only. The background matches
+// the GOV.UK rebrand header/service-navigation blue (#1d70b8 = $govuk-brand-colour)
+// so that all three elements read as one unified block.
+.app-masthead {
+  background-color: #1d70b8;
+  // Kill any top border that service-navigation might leave
+  border-top: none;
+}
+
+.app-masthead__container {
+  padding-top: 40px;    // govuk-spacing(7)
+  padding-bottom: 60px; // govuk-spacing(9)
+}
+
+.app-masthead__title {
+  color: #fff;
+
+  // Override the default dark govuk heading colour
+  &.govuk-heading-xl {
+    color: #fff;
+  }
+}
+
+.app-masthead__description {
+  color: #fff;
+
+  &.govuk-body-l {
+    color: #fff;
+  }
+}
+
 // Search bar rendered as a flex sibling inside govuk-header__container.
 // govuk-frontend's container uses a clearfix float layout; we switch it to
 // flex so children line up in a row and can be vertically centred.

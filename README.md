@@ -103,12 +103,27 @@ module.exports = {
           { text: 'GitHub', href: 'https://github.com/your-org/your-repo' },
         ],
       },
+
+      homepage: {
+        // Path to link the "Get started" button on the homepage masthead
+        getStartedHref: '/getting-started',
+      },
     },
   },
 };
 ```
 
 ### Configuration Reference
+
+#### `themeConfig.govuk.homepage`
+
+Controls the homepage masthead — a full-width blue banner rendered between the service navigation and the page body on the homepage only. The banner shares the GOV.UK rebrand blue (`#1d70b8`) with the header and service navigation, so all three elements appear as one unified block.
+
+The masthead displays `siteConfig.title` as the heading and `siteConfig.tagline` as the lead paragraph. A GOV.UK "Start" button links to the configured `getStartedHref`.
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `getStartedHref` | `string` | `'/getting-started'` | Path the "Get started" button links to |
 
 #### `themeConfig.govuk.header`
 

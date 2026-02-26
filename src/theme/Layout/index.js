@@ -7,6 +7,7 @@ import SearchBar from '@theme/SearchBar';
 import {useLocation} from '@docusaurus/router';
 import Head from '@docusaurus/Head';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import LayoutProvider from '@theme/Layout/Provider';
 import AnnouncementBar from '@theme/AnnouncementBar';
 
@@ -112,9 +113,15 @@ export default function Layout(props) {
   const header = govukConfig.header || {};
   const phaseBanner = govukConfig.phaseBanner;
   const footer = govukConfig.footer || {};
+  const homepageConfig = govukConfig.homepage;
 
   // Strip baseUrl so sidebar matching works regardless of deployment path
   const pathname = stripBaseUrl(location.pathname, siteConfig.baseUrl);
+
+  const isHomepage = pathname === '/';
+  const getStartedHref = useBaseUrl(
+    homepageConfig?.getStartedHref || '/getting-started',
+  );
   const baseUrl = siteConfig.baseUrl.endsWith('/')
     ? siteConfig.baseUrl.slice(0, -1)
     : siteConfig.baseUrl;
@@ -182,6 +189,44 @@ export default function Layout(props) {
           serviceName={header.serviceName}
           serviceHref={withBase(header.serviceHref || '/')}
         />
+
+        {isHomepage && homepageConfig && (
+          <div className="app-masthead">
+            <div className="govuk-width-container app-masthead__container">
+              <div className="govuk-grid-row">
+                <div className="govuk-grid-column-two-thirds">
+                  <h1 className="govuk-heading-xl app-masthead__title">
+                    {siteConfig.title}
+                  </h1>
+                  {siteConfig.tagline && (
+                    <p className="govuk-body-l app-masthead__description">
+                      {siteConfig.tagline}
+                    </p>
+                  )}
+                  <a
+                    href={getStartedHref}
+                    role="button"
+                    draggable="false"
+                    className="govuk-button govuk-button--start govuk-button--inverse"
+                  >
+                    Get started
+                    <svg
+                      className="govuk-button__start-icon"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="17.5"
+                      height="19"
+                      viewBox="0 0 33 40"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path fill="currentColor" d="M0 0h13l20 20-20 20H0l20-20z" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="govuk-width-container">
           {phaseBanner && (
