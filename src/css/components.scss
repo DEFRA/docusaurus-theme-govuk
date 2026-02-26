@@ -99,16 +99,19 @@
   color: #505a5f;
 }
 
-// Search bar overlaid on the top-right of the GOV.UK header bar
-.app-header-wrapper {
-  position: relative;
+// Search bar rendered as a flex sibling inside govuk-header__container.
+// govuk-frontend's container uses a clearfix float layout; we switch it to
+// flex so children line up in a row and can be vertically centred.
+// margin-left:auto on .app-header-search pushes it to the right edge.
+.govuk-header__container {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
 }
 
 .app-header-search {
-  position: absolute;
-  right: 15px;
-  top: 0;
-  bottom: 0;
+  margin-left: auto;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   z-index: 1;

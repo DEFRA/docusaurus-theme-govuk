@@ -1,6 +1,7 @@
 import React from 'react';
 import '../../css/theme.scss';
-import {SkipLink, Header, Footer, PhaseBanner, ServiceNavigation} from '@not-govuk/simple-components';
+import {SkipLink, Footer, PhaseBanner, ServiceNavigation} from '@not-govuk/simple-components';
+import Header from '../Header';
 import SidebarNav from '../SidebarNav';
 import SearchBar from '@theme/SearchBar';
 import {useLocation} from '@docusaurus/router';
@@ -166,16 +167,15 @@ export default function Layout(props) {
 
         <SkipLink for="main-content">Skip to main content</SkipLink>
 
-        <div className="app-header-wrapper">
-          <Header
-            rebrand
-            organisationText={header.organisationText}
-            organisationHref={header.organisationHref}
-          />
+        <Header
+          rebrand
+          organisationText={header.organisationText}
+          organisationHref={header.organisationHref}
+        >
           <div className="app-header-search">
             <SearchBar />
           </div>
-        </div>
+        </Header>
 
         <ServiceNavigation
           items={serviceNavItems}
