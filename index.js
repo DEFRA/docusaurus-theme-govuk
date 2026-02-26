@@ -100,6 +100,23 @@ module.exports = function themeGovuk(context, options) {
         }
       }
       if (!resolved) {
+        // Also try {slug}/index.md for directory-based doc sections
+        for (const ext of ['.md', '.mdx']) {
+          const candidate = path.join(docsDir, slug, `index${ext}`);
+          if (fs.existsSync(candidate)) {
+            section.sidebar = {
+              _auto: true,
+              items: parseHeadingsToSidebar(
+                fs.readFileSync(candidate, 'utf-8'),
+                href
+              ),
+            };
+            resolved = true;
+            break;
+          }
+        }
+      }
+      if (!resolved) {
         console.warn(
           `[docusaurus-theme-govuk] sidebar: "auto" on "${href}" — could not find markdown file at ${path.join(docsDir, slug)}.(md|mdx)`
         );

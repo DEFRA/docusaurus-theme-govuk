@@ -17,3 +17,10 @@
 .container {
   max-width: 100%;
 }
+
+/* Prevent images from overflowing the content area */
+.markdown img,
+article img {
+  max-width: 100%;
+  height: auto;
+}
