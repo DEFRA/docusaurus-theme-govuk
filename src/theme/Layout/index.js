@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import {useState, useEffect} from 'react';
 import '../../css/theme.scss';
 import {SkipLink, Footer, PhaseBanner, ServiceNavigation} from '@not-govuk/simple-components';
 import Header from '../Header';

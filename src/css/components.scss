@@ -290,3 +290,29 @@
   }
 }
 
+@media (max-width: 767px) {
+  .app-layout-sidebar {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .app-layout-sidebar__nav {
+    width: 100%;
+    padding-left: 0;
+    flex-shrink: 0;
+    position: static;
+    top: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .app-layout-sidebar__content {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .app-header-search .autocomplete__wrapper {
+    width: 180px;
+  }
+}
+
