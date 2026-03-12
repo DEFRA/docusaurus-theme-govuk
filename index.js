@@ -8,6 +8,34 @@ const removeMarkdown = require('remove-markdown');
 // handles deduplication automatically (second "Options" → "options-1", etc.).
 const GithubSlugger = require('github-slugger');
 
+// Remark plugin: converts `<!-- no-sidebar -->` inline HTML comments inside
+// headings into a `data-no-sidebar` HTML attribute (via mdast hProperties) so
+// the runtime DOM scanner can detect and skip them. MDX/remark-rehype drops
+// raw HTML comment nodes before they reach the browser DOM, so a compile-time
+// transformation is the only reliable way to carry this signal through.
+function remarkNoSidebar() {
+  return function (tree) {
+    if (!tree || !Array.isArray(tree.children)) return;
+    for (const node of tree.children) {
+      if (node.type !== 'heading') continue;
+      const children = node.children || [];
+      const commentIdx = children.findIndex(
+        child => child.type === 'html' && child.value?.includes('no-sidebar')
+      );
+      if (commentIdx === -1) continue;
+      // Strip the comment node from the heading children
+      node.children = children.filter((_, i) => i !== commentIdx);
+      // Trim trailing whitespace in the preceding text node, if any
+      const prev = node.children[commentIdx - 1];
+      if (prev?.type === 'text') prev.value = prev.value.trimEnd();
+      // Attach hProperties so remark-rehype passes data-no-sidebar to the element
+      node.data = node.data || {};
+      node.data.hProperties = node.data.hProperties || {};
+      node.data.hProperties['data-no-sidebar'] = 'true';
+    }
+  };
+}
+
 // Parse markdown content and build a sidebar config from h2/h3 headings.
 // h2 → top-level items; h3 → nested items under the preceding h2.
 // Items include both the display text and an anchor href (basePath + '#' + anchor).
@@ -32,8 +60,8 @@ function parseHeadingsToSidebar(content, basePath) {
   let currentH2 = null;
 
   for (const line of lines) {
-    const h2 = line.match(/^## (.+)$/);
-    const h3 = line.match(/^### (.+)$/);
+    const h2 = !line.includes('<!-- no-sidebar -->') && line.match(/^## (.+)$/);
+    const h3 = !line.includes('<!-- no-sidebar -->') && line.match(/^### (.+)$/);
 
     if (h2) {
       const raw = h2[1].trim();
@@ -51,6 +79,40 @@ function parseHeadingsToSidebar(content, basePath) {
   }
 
   return items.map(({ _anchor, ...item }) => item);
+}
+
+// Mutate the webpack config to inject remarkNoSidebar into the MDX loader.
+// Extracted to keep configureWebpack's cognitive complexity within limits.
+function injectNoSidebarPlugin(config) {
+  try {
+    injectIntoRules(config.module?.rules || []);
+  } catch (e) {
+    // Non-fatal: the build-time parseHeadingsToSidebar still handles static sidebars.
+    console.warn('[docusaurus-theme-govuk] Could not inject no-sidebar remark plugin:', e.message);
+  }
+}
+
+function normaliseUses(use) {
+  if (Array.isArray(use)) return use;
+  return use ? [use] : [];
+}
+
+function injectIntoUses(uses) {
+  for (const use of uses) {
+    if (typeof use?.loader === 'string' && use.loader.includes('mdx-loader')) {
+      use.options = use.options || {};
+      use.options.beforeDefaultRemarkPlugins = use.options.beforeDefaultRemarkPlugins || [];
+      use.options.beforeDefaultRemarkPlugins.push(remarkNoSidebar);
+    }
+  }
+}
+
+function injectIntoRules(rules) {
+  for (const rule of rules) {
+    if (!rule || typeof rule !== 'object') continue;
+    if (Array.isArray(rule.oneOf)) injectIntoRules(rule.oneOf);
+    injectIntoUses(normaliseUses(rule.use));
+  }
 }
 
 module.exports = function themeGovuk(context, options) {
@@ -144,6 +206,13 @@ module.exports = function themeGovuk(context, options) {
     },
 
     configureWebpack(config, isServer, utils) {
+      // Inject our no-sidebar remark plugin into the MDX loader so that
+      // `<!-- no-sidebar -->` comments in headings are converted to
+      // data-no-sidebar attributes before the DOM is rendered. We mutate the
+      // existing config directly since webpack-merge cannot deep-merge loader
+      // options arrays correctly.
+      injectNoSidebarPlugin(config);
+
       // Helper: resolve a package from the consumer's siteDir.
       // Uses require.resolve with paths so it follows Node's resolution
       // (handles hoisted AND nested node_modules like @docusaurus/core/node_modules/react-router-dom).

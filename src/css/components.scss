@@ -9,9 +9,6 @@
 
 .app-layout-sidebar__nav {
   width: 250px;
-  // Padding-left gives room for the nav's active indicator (margin-left: -14px)
-  // which would otherwise be clipped by the overflow-y containment.
-  padding-left: 15px;
   flex-shrink: 0;
   position: sticky;
   top: 1rem;
@@ -81,6 +78,120 @@
 
   &:hover {
     opacity: 1;
+  }
+}
+
+// Remove side bar top border
+.app-layout-sidebar__nav {
+  overflow: auto;
+  padding-top: 0;
+  border: 0;
+}
+
+// Navigation menu mobile styling
+.app-layout-sidebar__nav .not-govuk-navigation-menu__list > .not-govuk-navigation-menu__list__item {
+  border-bottom: 1px solid #cecece;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  font-size: 1rem;
+  
+  @media (min-width: 40.0625em) {
+    border-bottom: 0;
+  }
+
+  .not-govuk-navigation-menu__list__link {
+    display: flex;
+    padding: 2px 0;
+  }
+
+  &--active {
+    border-left: 4px solid #1d70b8;
+    padding-left: 11px;
+    font-weight: bold;
+  }
+}
+
+// Active indicator on sub-items.
+// __subitems has padding-left: 15px; margin-left: -15px shifts the item back
+// to the container edge so the 4px border sits flush on the left.
+
+.app-layout-sidebar__nav .not-govuk-navigation-menu__list__subitems {
+
+  .not-govuk-navigation-menu__list__item {
+    padding: 5px 0 5px 15px;
+    margin-bottom: 5px;
+    border-left-width: 0px;
+    border-left-style: solid;
+  }
+
+  .not-govuk-navigation-menu__list__item--active {
+    border-left-width: 4px;
+    padding-left: 11px;
+    font-weight: bold;
+
+    .not-govuk-navigation-menu__list__link {
+      font-weight: bold;
+    }
+  }
+
+  // Remove the '— ' dash from all sub-items.
+  .not-govuk-navigation-menu__list__item::before {
+    content: none;
+  }
+
+  padding-left: 0;
+}
+
+// Sidebar nav section headings and mobile toggle
+// Desktop: headings are non-link spans, visually distinct from link items
+.not-govuk-navigation-menu__list__heading {
+  display: block;
+  padding: 2px 0;
+  color: #0b0c0c;
+  font-weight: bold;
+  cursor: default;
+}
+
+// Mobile: headings become toggle buttons
+.not-govuk-navigation-menu__list__heading-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 2px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: bold;
+  color: #1d70b8;
+  cursor: pointer;
+
+  // Chevron indicator on the left
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 5px solid currentColor;
+    flex-shrink: 0;
+    margin-right: 8px;
+    transition: transform 0.2s ease;
+  }
+
+  &[aria-expanded="true"]::before {
+    transform: rotate(90deg);
+  }
+
+  &:focus {
+    outline: 3px solid #fd0;
+    outline-offset: 0;
+    background-color: #fd0;
+    color: #0b0c0c;
+    box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
   }
 }
 
@@ -172,6 +283,16 @@
   flex-wrap: nowrap;
 }
 
+.govuk-header__link--homepage:focus svg g {
+  fill: #0b0c0c !important;
+}
+
+// Mirror GDS Design System
+.govuk-header__logotype-text {
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
 .app-header-search {
   margin-left: auto;
   flex-shrink: 0;
@@ -185,29 +306,36 @@
     width: 300px;
   }
 
-  // Input field — always white background with search icon on the left
+  // Input field — white background, GOV.UK dark border, search icon on the left
   .autocomplete__input {
     width: 100%;
-    padding: 4px 8px 4px 40px;
-    border: 2px solid #fff;
+    // GOV.UK inputs use 5px vertical padding; left padding reserves space for
+    // the search icon, right padding keeps text clear of the autocomplete clear button
+    padding: 5px 8px 5px 36px;
+    // Dark border matches govuk-input — visible on white and meets contrast requirements
+    border: 2px solid transparent;
     border-radius: 0;
     background-color: #fff;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230b0c0c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: 10px center;
-    background-size: 20px 20px;
+    background-position: 8px center;
+    background-size: 18px 18px;
     color: #0b0c0c;
     font-family: Helvetica, Arial, sans-serif;
-    font-size: 0.875rem;
     box-sizing: border-box;
+    // Prevent browser-native search-cancel button (replaced by autocomplete's own)
+    appearance: none;
 
     &::placeholder {
       color: #505a5f;
     }
 
+    // GOV.UK focus style: yellow outline with dark inner border
     &:focus {
       outline: 3px solid #fd0;
       outline-offset: 0;
+      box-shadow: inset 0 0 0 2px #0b0c0c;
+      border-color:#0b0c0c;
     }
   }
 
@@ -218,7 +346,6 @@
     left: 0;
     right: 0;
     background: #fff;
-    border: 2px solid #0b0c0c;
     border-radius: 0;
     margin: 0;
     padding: 0;
@@ -233,10 +360,13 @@
     position: relative;
   }
 
+  .autocomplete__menu--overlay {
+    box-shadow: rgba(11, 12, 12, .256863) 0 5px 5px;
+  }
+
   .autocomplete__option {
     padding: 8px 12px;
     font-family: Helvetica, Arial, sans-serif;
-    font-size: 0.875rem;
     color: #0b0c0c;
     cursor: pointer;
     border-bottom: 1px solid #f3f2f1;
@@ -264,7 +394,6 @@
 
   .app-search__context {
     display: block;
-    font-size: 0.75rem;
     color: #505a5f;
     margin-top: 2px;
   }
@@ -272,7 +401,6 @@
   .autocomplete__option--no-results {
     padding: 8px 12px;
     font-family: Helvetica, Arial, sans-serif;
-    font-size: 0.875rem;
     color: #505a5f;
   }
 
@@ -291,6 +419,22 @@
 }
 
 @media (max-width: 767px) {
+  .govuk-header__container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .app-header-search {
+    margin-left: 0;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .app-header-search div[role="search"],
+  .app-header-search .autocomplete__wrapper {
+    width: 100%;
+  }
+
   .app-layout-sidebar {
     flex-direction: column;
     gap: 0;
@@ -310,9 +454,4 @@
     width: 100%;
     min-width: 0;
   }
-
-  .app-header-search .autocomplete__wrapper {
-    width: 180px;
-  }
 }
-

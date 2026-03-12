@@ -4,30 +4,37 @@ import { useLocation } from '@docusaurus/router';
 /**
  * Hash- and pathname-aware sidebar navigation.
  *
- * Works for both anchor-based (auto-generated) and page-based (manual) sidebars.
+ * Desktop: section headings (items with children) are rendered as plain text,
+ * all groups are permanently expanded, only sub-items are links.
  *
- * SSR / no-JS: all groups are rendered expanded so content is accessible.
- * CSR after hydration:
- *   - Anchor hrefs (e.g. /api#constructor): active when pathname AND hash both match
- *   - Page hrefs (e.g. /building-a-plugin): active when pathname matches
- *   - Groups expand when the group itself or any child is active
+ * Mobile: section headings become toggle buttons; groups collapse and expand.
+ * Active groups start expanded. Items without children are always links.
  *
- * State sentinel:
- *   null = not yet hydrated → expand all groups (SSR safe)
- *   str  = JS loaded (empty string means no hash present)
+ * SSR / no-JS: renders in desktop mode (all groups expanded) so content is
+ * accessible without JavaScript.
  */
 export default function SidebarNav({ items }) {
   const [hash, setHash] = useState(null);
+  // null = not yet hydrated; false = desktop; true = mobile
+  const [isMobile, setIsMobile] = useState(null);
+  const [openGroups, setOpenGroups] = useState(new Set());
   const location = useLocation();
 
   useEffect(() => {
-    const update = () => setHash(window.location.hash.slice(1));
+    const update = () => setHash(globalThis.location.hash.slice(1));
     update();
-    window.addEventListener('hashchange', update);
-    return () => window.removeEventListener('hashchange', update);
+    globalThis.addEventListener('hashchange', update);
+    return () => globalThis.removeEventListener('hashchange', update);
   }, []);
 
-  // Split an href into its path and anchor components.
+  useEffect(() => {
+    const mql = globalThis.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(mql.matches);
+    update();
+    mql.addEventListener('change', update);
+    return () => mql.removeEventListener('change', update);
+  }, []);
+
   function parseHref(href) {
     if (!href) return { path: '', anchor: '' };
     const idx = href.indexOf('#');
@@ -35,9 +42,6 @@ export default function SidebarNav({ items }) {
     return { path: href.slice(0, idx) || '/', anchor: href.slice(idx + 1) };
   }
 
-  // Return true if the given href matches the current browser location.
-  //   Anchor hrefs: both pathname and hash must match.
-  //   Page hrefs:   pathname match is sufficient (exact or child path).
   function isActive(href) {
     const { path, anchor } = parseHref(href);
     if (anchor) {
@@ -49,44 +53,75 @@ export default function SidebarNav({ items }) {
     );
   }
 
+  // When switching to mobile, open any groups that contain the active page.
+  useEffect(() => {
+    if (!isMobile || hash === null) return;
+    const active = new Set();
+    (items || []).forEach((item, i) => {
+      if (!Array.isArray(item.items) || !item.items.length) return;
+      if (isActive(item.href) || item.items.some(sub => isActive(sub.href))) {
+        active.add(i);
+      }
+    });
+    setOpenGroups(active);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile, location.pathname, hash]);
+
+  function toggleGroup(i) {
+    setOpenGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+  }
+
   const cls = 'not-govuk-navigation-menu';
   const lCls = `${cls}__list`;
+  const itemCls = `${lCls}__item`;
+  const activeCls = `${itemCls}--active`;
+
+  function renderHeading(item, i, sublistId) {
+    if (isMobile) {
+      return (
+        <button
+          type="button"
+          className={`${lCls}__heading-toggle`}
+          aria-expanded={openGroups.has(i)}
+          aria-controls={sublistId}
+          onClick={() => toggleGroup(i)}
+        >
+          {item.text}
+        </button>
+      );
+    }
+    return <span className={`${lCls}__heading`}>{item.text}</span>;
+  }
 
   return (
     <nav className={cls}>
       <ul className={lCls}>
-        {items.map((item, i) => {
+        {(items || []).map((item, i) => {
           const hasChildren = Array.isArray(item.items) && item.items.length > 0;
-
-          // Pre-hydration (hash === null): expand everything so content is
-          // accessible without JS. After hydration: expand only if this group
-          // or one of its children is the active location.
-          const expanded =
-            hasChildren &&
-            (hash === null || isActive(item.href) || item.items.some(sub => isActive(sub.href)));
-
           const active = hash !== null && isActive(item.href);
+          const showChildren =
+            hasChildren && (isMobile === null || !isMobile || openGroups.has(i));
+          const liCls = active && !hasChildren ? `${itemCls} ${activeCls}` : itemCls;
+          const sublistId = hasChildren ? `sidebar-group-${i}` : undefined;
 
           return (
-            <li
-              key={i}
-              className={`${lCls}__item${active ? ` ${lCls}__item--active` : ''}`}
-            >
-              <a href={item.href} className={`${lCls}__link`}>
-                {item.text}
-              </a>
-              {expanded && (
-                <ul className={`${lCls}__subitems`}>
-                  {item.items.map((sub, j) => {
+            <li key={item.href || item.text} className={liCls}>
+              {hasChildren ? renderHeading(item, i, sublistId) : (
+                <a href={item.href} className={`${lCls}__link`}>{item.text}</a>
+              )}
+              {showChildren && (
+                <ul id={sublistId} className={`${lCls}__subitems`}>
+                  {item.items.map((sub) => {
                     const subActive = hash !== null && isActive(sub.href);
+                    const subCls = subActive ? `${itemCls} ${activeCls}` : itemCls;
                     return (
-                      <li
-                        key={j}
-                        className={`${lCls}__item${subActive ? ` ${lCls}__item--active` : ''}`}
-                      >
-                        <a href={sub.href} className={`${lCls}__link`}>
-                          {sub.text}
-                        </a>
+                      <li key={sub.href || sub.text} className={subCls}>
+                        <a href={sub.href} className={`${lCls}__link`}>{sub.text}</a>
                       </li>
                     );
                   })}
@@ -99,4 +134,3 @@ export default function SidebarNav({ items }) {
     </nav>
   );
 }
-

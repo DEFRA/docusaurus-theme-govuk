@@ -4,54 +4,54 @@
 
 .app-prose-scope {
   // Headings
-  h1 {
+  h1:not(.app-no-prose *) {
     @extend %govuk-heading-xl;
   }
 
-  h2 {
+  h2:not(.app-no-prose *) {
     @extend %govuk-heading-l;
   }
 
-  h3 {
+  h3:not(.app-no-prose *) {
     @extend %govuk-heading-m;
   }
 
-  h4 {
+  h4:not(.app-no-prose *) {
     @extend %govuk-heading-s;
   }
 
   // Body text
-  p {
+  p:not(.app-no-prose *) {
     @extend %govuk-body-m;
   }
 
   // Bold text
-  strong,
-  b {
+  strong:not(.app-no-prose *),
+  b:not(.app-no-prose *) {
     font-weight: 700;
   }
 
   // Lists
-  ul,
-  ol {
+  ul:not(.app-no-prose *),
+  ol:not(.app-no-prose *) {
     @extend %govuk-list;
   }
 
-  ol {
+  ol:not(.app-no-prose *) {
     @extend %govuk-list--number;
   }
 
-  ul {
+  ul:not(.app-no-prose *) {
     @extend %govuk-list--bullet;
   }
 
   // Links
-  a {
+  a:not(.app-no-prose *) {
     @extend %govuk-link;
   }
 
   // Section breaks
-  hr {
+  hr:not(.app-no-prose *) {
     @extend %govuk-section-break;
     @extend %govuk-section-break--visible;
     @extend %govuk-section-break--xl;

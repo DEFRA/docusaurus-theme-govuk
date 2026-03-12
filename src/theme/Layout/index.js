@@ -98,6 +98,41 @@ function getActiveSection(pathname, navigation) {
   });
 }
 
+/**
+ * Initialise the govuk-frontend ServiceNavigation JS for the mobile menu toggle.
+ * The @not-govuk React component renders the toggle button with `hidden` by default
+ * (progressive enhancement); this hook removes `hidden` on mobile and wires up the
+ * click handler exactly as govuk-frontend expects.
+ */
+function useServiceNavigationToggle() {
+  useEffect(() => {
+    let cancelled = false;
+    import('govuk-frontend').then(({ ServiceNavigation }) => {
+      if (cancelled) return;
+      // govuk-frontend checks for this class before initialising any component.
+      // Normally added by an inline <script> snippet in the HTML template; we
+      // add it here since Docusaurus doesn't use that template pattern.
+      document.body.classList.add('govuk-frontend-supported');
+      document.querySelectorAll('[data-module="govuk-service_navigation"]').forEach((el) => {
+        try {
+          const instance = new ServiceNavigation(el);
+          el._govukServiceNav = instance;
+        } catch (e) {
+          // May fail if the CSS custom property --govuk-breakpoint-tablet isn't set.
+          // Fall back to injecting it directly so the toggle still works.
+          if (e.message?.includes('CSS custom property')) {
+            document.documentElement.style.setProperty('--govuk-breakpoint-tablet', '40.0625em');
+            el._govukServiceNav = new ServiceNavigation(el);
+          } else {
+            throw e;
+          }
+        }
+      });
+    });
+    return () => { cancelled = true; };
+  }, []);
+}
+
 export default function Layout(props) {
   const location = useLocation();
   const {siteConfig} = useDocusaurusContext();
@@ -108,6 +143,8 @@ export default function Layout(props) {
     description,
     noFooter,
   } = props;
+
+  useServiceNavigationToggle();
 
   const navigation = govukConfig.navigation || [];
   const header = govukConfig.header || {};
@@ -170,6 +207,10 @@ export default function Layout(props) {
     for (const el of headings) {
       const id = el.id;
       if (!id) continue;
+      // Skip headings marked with <!-- no-sidebar --> in the source.
+      // The remarkNoSidebar plugin (index.js) converts the comment to a
+      // data-no-sidebar attribute at compile time so it survives MDX rendering.
+      if (el.dataset?.noSidebar) continue;
       const text = el.textContent?.trim() ?? '';
       const href = withBase(`${pathname}#${id}`);
       if (el.tagName === 'H2') {
@@ -196,14 +237,14 @@ export default function Layout(props) {
   return (
     <LayoutProvider>
       <Head>
-        <html lang="en-GB" className="govuk-template" />
-        <body className="govuk-template__body" />
+        <html lang="en-GB" className="govuk-template govuk-template--rebranded" />
+        <body className={isHomepage ? 'govuk-template__body app-homepage' : 'govuk-template__body'} />
         <meta name="theme-color" content="#0b0c0c" />
         {title && <title>{title}</title>}
         {description && <meta name="description" content={description} />}
       </Head>
 
-      <div className="govuk-template--rebranded">
+      <div className="govuk-template__body-inner">
         <AnnouncementBar />
 
         {/* Hidden navbar element for Docusaurus hooks */}
@@ -266,8 +307,8 @@ export default function Layout(props) {
           </div>
         )}
 
-        <div className="govuk-width-container">
-          {phaseBanner && (
+        {phaseBanner && (
+          <div className="govuk-width-container">
             <PhaseBanner phase={phaseBanner.phase}>
               {phaseBanner.text}{' '}
               {phaseBanner.feedbackHref && (
@@ -276,10 +317,12 @@ export default function Layout(props) {
                 </a>
               )}
             </PhaseBanner>
-          )}
+          </div>
+        )}
 
-          <main id="main-content" className="govuk-main-wrapper">
-            {sidebarItems ? (
+        <main id="main-content" className={isHomepage ? undefined : 'govuk-main-wrapper'}>
+          {sidebarItems ? (
+            <div className="govuk-width-container">
               <div className="app-layout-sidebar">
                 <aside className="app-layout-sidebar__nav">
                   <SidebarNav items={sidebarItems} />
@@ -288,11 +331,15 @@ export default function Layout(props) {
                   {children}
                 </div>
               </div>
-            ) : (
-              children
-            )}
-          </main>
-        </div>
+            </div>
+          ) : isHomepage ? (
+            children
+          ) : (
+            <div className="govuk-width-container">
+              {children}
+            </div>
+          )}
+        </main>
 
         {!noFooter && (
           <Footer rebrand meta={footer.meta} />

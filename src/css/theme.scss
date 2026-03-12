@@ -7,6 +7,9 @@
 /* Import component styles */
 @import './components.scss';
 
+/* GOV.UK grid system */
+@import 'govuk-frontend/dist/govuk/objects/grid';
+
 /*
  * Set the default font on the body so that ALL elements
  * (header, footer, service-nav, etc.) inherit the same stack.
@@ -23,13 +26,20 @@ body {
  * and our layout, breaking GOV.UK Frontend's flex sticky-footer chain.
  * Rather than patching the chain, own the full-height context here.
  */
-.govuk-template--rebranded {
+.govuk-template__body-inner {
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.govuk-template--rebranded > .govuk-width-container {
+.govuk-template__body-inner > .govuk-width-container {
   flex: 1 0 auto;
-  width: 100%;
+  width: calc(100% - 30px);
+}
+
+@media (min-width: 40.0625em) {
+  .govuk-template__body-inner > .govuk-width-container {
+    width: calc(100% - 60px);
+  }
 }
