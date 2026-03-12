@@ -170,29 +170,34 @@ function SearchBarInner() {
   const Autocomplete = require('accessible-autocomplete/react').default;
 
   return (
-    <Autocomplete
-      id="govuk-search"
-      source={source}
-      templates={{
-        inputValue: (result) => (result ? result._label : ''),
-        suggestion: (result) => {
-          if (!result) return '';
-          const title = escapeHtml(result._label);
-          const context = result._context
-            ? `<span class="app-search__context">${escapeHtml(result._context)}</span>`
-            : '';
-          return `<span class="app-search__title">${title}</span>${context}`;
-        },
-      }}
-      displayMenu="overlay"
-      minLength={2}
-      placeholder="Search"
-      onConfirm={onConfirm}
-      tNoResults={() => 'No results found'}
-      tAssistiveHint={() =>
-        'When autocomplete results are available use up and down arrows to review and enter to select.'
-      }
-    />
+    <div role="search">
+      <label htmlFor="govuk-search" className="govuk-visually-hidden">
+        Search
+      </label>
+      <Autocomplete
+        id="govuk-search"
+        source={source}
+        templates={{
+          inputValue: (result) => (result ? result._label : ''),
+          suggestion: (result) => {
+            if (!result) return '';
+            const title = escapeHtml(result._label);
+            const context = result._context
+              ? `<span class="app-search__context">${escapeHtml(result._context)}</span>`
+              : '';
+            return `<span class="app-search__title">${title}</span>${context}`;
+          },
+        }}
+        displayMenu="overlay"
+        minLength={2}
+        placeholder="Search"
+        onConfirm={onConfirm}
+        tNoResults={() => 'No results found'}
+        tAssistiveHint={() =>
+          'When autocomplete results are available use up and down arrows to review and enter to select.'
+        }
+      />
+    </div>
   );
 }
 
