@@ -17,6 +17,16 @@
   // Always reserve the scrollbar gutter so expanding subnav items don't
   // cause a horizontal layout shift when the scrollbar appears.
   scrollbar-gutter: stable;
+
+  // Remove side bar top border
+  padding-top: 0;
+  border: 0;
+
+  @media (min-width: 48.125em) {
+    overflow: auto !important;
+    margin-left: -16px;
+    padding-left: 16px;
+  }
 }
 
 .app-layout-sidebar__content {
@@ -81,23 +91,24 @@
   }
 }
 
-// Remove side bar top border
-.app-layout-sidebar__nav {
-  overflow: auto;
-  padding-top: 0;
-  border: 0;
-}
-
 // Navigation menu mobile styling
 .app-layout-sidebar__nav .not-govuk-navigation-menu__list > .not-govuk-navigation-menu__list__item {
   border-bottom: 1px solid #cecece;
+
+  position: relative;
   padding-top: 5px;
   padding-bottom: 5px;
   margin-bottom: 5px;
   font-size: 1rem;
+  padding-left: 0;
+  margin-left: 0;
   
-  @media (min-width: 40.0625em) {
+  @media (min-width: 48.125em) {
     border-bottom: 0;
+
+    &:after {
+      border-bottom: 0;
+    }
   }
 
   .not-govuk-navigation-menu__list__link {
@@ -106,15 +117,19 @@
   }
 
   &--active {
-    border-left: 4px solid #1d70b8;
-    padding-left: 11px;
-    font-weight: bold;
+    border-left: none;
+
+    @media (min-width: 48.125em) {
+      border-left: 4px solid #1d70b8;
+      padding-left: 11px;
+      margin-left: -15px;
+      border-bottom: 0;
+      font-weight: bold;
+    }
   }
 }
 
 // Active indicator on sub-items.
-// __subitems has padding-left: 15px; margin-left: -15px shifts the item back
-// to the container edge so the 4px border sits flush on the left.
 
 .app-layout-sidebar__nav .not-govuk-navigation-menu__list__subitems {
 
@@ -126,12 +141,16 @@
   }
 
   .not-govuk-navigation-menu__list__item--active {
-    border-left-width: 4px;
-    padding-left: 11px;
-    font-weight: bold;
+    border-left: none;
 
-    .not-govuk-navigation-menu__list__link {
+    @media (min-width: 48.125em) {
+      border-left: 4px solid #1d70b8;
+      padding-left: 10px;
       font-weight: bold;
+
+      .not-govuk-navigation-menu__list__link {
+        font-weight: bold;
+      }
     }
   }
 
@@ -155,9 +174,8 @@
 
 // Mobile: headings become toggle buttons
 .not-govuk-navigation-menu__list__heading-toggle {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  width: 100%;
   padding: 2px 0;
   background: none;
   border: none;
@@ -168,29 +186,27 @@
   color: #1d70b8;
   cursor: pointer;
 
-  // Chevron indicator on the left
-  &::before {
+  // Chevron indicator on the right, pointing down (collapsed)
+  &::after {
     content: '';
     display: inline-block;
     width: 0;
     height: 0;
-    border-top: 4px solid transparent;
-    border-bottom: 4px solid transparent;
-    border-left: 5px solid currentColor;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
     flex-shrink: 0;
-    margin-right: 8px;
-    transition: transform 0.2s ease;
+    margin-left: 8px;
   }
 
-  &[aria-expanded="true"]::before {
-    transform: rotate(90deg);
+  &[aria-expanded="true"]::after {
+    transform: rotate(180deg);
   }
 
   &:focus {
-    outline: 3px solid #fd0;
-    outline-offset: 0;
-    background-color: #fd0;
+    outline: 3px solid transparent;
     color: #0b0c0c;
+    background-color: #fd0;
     box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
   }
 }
@@ -418,7 +434,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 769px) {
   .govuk-header__container {
     flex-direction: column;
     align-items: flex-start;

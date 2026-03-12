@@ -4,14 +4,13 @@ import { useLocation } from '@docusaurus/router';
 /**
  * Hash- and pathname-aware sidebar navigation.
  *
- * Desktop: section headings (items with children) are rendered as plain text,
- * all groups are permanently expanded, only sub-items are links.
+ * Desktop (≥770px): section headings are non-interactive spans; all groups
+ * are permanently expanded; active items get a left-border marker.
  *
- * Mobile: section headings become toggle buttons; groups collapse and expand.
- * Active groups start expanded. Items without children are always links.
+ * Mobile (<770px): section headings become toggle buttons; groups collapse
+ * and expand. Active groups start expanded. Active marker is hidden.
  *
- * SSR / no-JS: renders in desktop mode (all groups expanded) so content is
- * accessible without JavaScript.
+ * SSR / no-JS: renders in desktop mode (all groups expanded).
  */
 export default function SidebarNav({ items }) {
   const [hash, setHash] = useState(null);
@@ -28,7 +27,7 @@ export default function SidebarNav({ items }) {
   }, []);
 
   useEffect(() => {
-    const mql = globalThis.matchMedia('(max-width: 767px)');
+    const mql = globalThis.matchMedia('(max-width: 769px)');
     const update = () => setIsMobile(mql.matches);
     update();
     mql.addEventListener('change', update);
