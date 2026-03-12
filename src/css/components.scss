@@ -17,6 +17,16 @@
   // Always reserve the scrollbar gutter so expanding subnav items don't
   // cause a horizontal layout shift when the scrollbar appears.
   scrollbar-gutter: stable;
+
+  // Remove side bar top border
+  padding-top: 0;
+  border: 0;
+
+  @media (min-width: 48.125em) {
+    overflow: auto !important;
+    margin-left: -16px;
+    padding-left: 16px;
+  }
 }
 
 .app-layout-sidebar__content {
@@ -78,19 +88,6 @@
 
   &:hover {
     opacity: 1;
-  }
-}
-
-// Remove side bar top border
-.app-layout-sidebar__nav {
-  overflow: auto;
-  padding-top: 0;
-  border: 0;
-
-  @media (min-width: 48.125em) {
-    overflow: auto !important;
-    margin-left: -16px;
-    padding-left: 16px;
   }
 }
 
