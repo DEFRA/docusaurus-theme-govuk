@@ -273,7 +273,7 @@ export default function Layout(props) {
           <div className="app-masthead">
             <div className="govuk-width-container app-masthead__container">
               <div className="govuk-grid-row">
-                <div className="govuk-grid-column-two-thirds">
+                <div className="govuk-grid-column-two-thirds-from-desktop">
                   <h1 className="govuk-heading-xl app-masthead__title">
                     {siteConfig.tagline || siteConfig.title}
                   </h1>
@@ -302,6 +302,7 @@ export default function Layout(props) {
                     </svg>
                   </a>
                 </div>
+                <div className="govuk-grid-column-one-third-from-desktop" />
               </div>
             </div>
           </div>
