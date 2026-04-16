@@ -20,8 +20,21 @@
     @extend %govuk-heading-s;
   }
 
+  // Extra top padding on headings that follow a code block,
+  // matching the spacing govuk-frontend adds after paragraphs and lists
+  @media (min-width: 40.0625em) {
+    .app-code-block + h2:not(.app-no-prose *),
+    .app-code-block + h3:not(.app-no-prose *),
+    .app-code-block + h4:not(.app-no-prose *),
+    .app-code-block + h5:not(.app-no-prose *),
+    .app-code-block + h6:not(.app-no-prose *) {
+      padding-top: 20px;
+    }
+  }
+
   // Body text
-  p:not(.app-no-prose *) {
+  p:not(.app-no-prose *),
+  .app-definition-list:not(.app-no-prose *) {
     @extend %govuk-body-m;
   }
 
@@ -55,16 +68,48 @@
     @extend %govuk-section-break;
     @extend %govuk-section-break--visible;
     @extend %govuk-section-break--xl;
+    border-color: #cecece;
+  }
+
+  // Inline code styling (paragraphs, list items, headings etc — but not inside pre blocks)
+  code:not(pre *):not(h1 *):not(h2 *):not(h3 *):not(h4 *):not(h5 *):not(h6 *):not(.app-no-prose *) {
+    color: #484949;
+    font-size: 0.85em;
+    background-color: #f4f8fb;
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+
+  // Lighter table borders
+  .govuk-table__header,
+  .govuk-table__cell {
+    border-bottom-color: #cecece;
+  }
+
+  // Remove the table's last row border when a section break immediately follows,
+  // so the two rules don't double up visually.
+  // Border is on td/th cells, not tr, so target those directly.
+  table:has(+ hr) tr:last-child th,
+  table:has(+ hr) tr:last-child td {
+    border-bottom: none;
+  }
+
+  // Remove bottom margin from the last paragraph inside inset and warning text
+  .govuk-inset-text,
+  .govuk-warning-text {
+    p:last-child:not(.app-no-prose *) {
+      margin-bottom: 0;
+    }
   }
 
   // Code block copy button
   .app-code-block__copy {
     font-size: 0.9rem;
-    min-width: 110px;
+    min-width: 70px;
     padding: 3px 10px;
-    border: 1px solid #00823b;
-    color: #00823b;
-    box-shadow: 0 2px 0 0 #0f7a52;
+    border: 1px solid #1a65a6;
+    color: #1a65a6;
+    box-shadow: 0 2px 0 0 #1a65a6;
     background-color: #fff;
     text-align: center;
     text-decoration: none;
