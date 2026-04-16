@@ -21,6 +21,32 @@ body {
   font-family: Helvetica, Arial, sans-serif;
 }
 
+/* Wider page width — overrides the 960px default from govuk-frontend.
+ * !important is needed because @not-govuk/width-container injects its CSS
+ * via the JS bundle, which loads after static stylesheets and wins the cascade.
+ *
+ * The package's margin: auto rule fires at 1020px (960 + 30 + 30), which is too
+ * early for our wider container. We restore the 30px gutters from 1020px and only
+ * allow auto-centering once the viewport is wide enough to actually cap at 1100px
+ * (1100 + 30 + 30 = 1160px). */
+.govuk-width-container {
+  max-width: 1100px !important;
+}
+
+@media (min-width: 1020px) {
+  .govuk-width-container {
+    margin-right: 30px !important;
+    margin-left: 30px !important;
+  }
+}
+
+@media (min-width: 1160px) {
+  .govuk-width-container {
+    margin-right: auto !important;
+    margin-left: auto !important;
+  }
+}
+
 /*
  * Sticky footer: Docusaurus inserts a #__docusaurus wrapper between body
  * and our layout, breaking GOV.UK Frontend's flex sticky-footer chain.

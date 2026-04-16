@@ -28,7 +28,7 @@ export default function CodeBlock({children, className: classNameProp, title}) {
         </div>
       )}
       <Highlight theme={themes.github} code={codeString} language={language}>
-        {({style, tokens, getLineProps, getTokenProps}) => (
+        {({style: {backgroundColor: _bg, ...style}, tokens, getLineProps, getTokenProps}) => (
           <pre className="app-code-block__pre" style={style}>
             <button
               type="button"
