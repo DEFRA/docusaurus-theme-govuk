@@ -56,4 +56,34 @@
     @extend %govuk-section-break--visible;
     @extend %govuk-section-break--xl;
   }
+
+  // Code block copy button
+  .app-code-block__copy {
+    font-size: 0.9rem;
+    min-width: 110px;
+    padding: 3px 10px;
+    border: 1px solid #00823b;
+    color: #00823b;
+    box-shadow: 0 2px 0 0 #0f7a52;
+    background-color: #fff;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  
+  .app-code-block__copy:active {
+    border: 2px solid var(--govuk-focus-colour, #ffdd00);
+    padding: 2px 10px;
+    outline: 2px solid rgba(0, 0, 0, 0);
+    box-shadow: none;
+  }
+
+  .app-code-block__copy:focus:not(:hover) {
+    border: 2px solid var(--govuk-focus-colour, #ffdd00);
+    padding: 2px 10px;
+    outline: 2px solid rgba(0, 0, 0, 0);
+    color: var(--govuk-focus-text-colour, #0b0c0c);
+    background-color: var(--govuk-focus-colour, #ffdd00);
+    box-shadow: 0 2px 0 0 var(--govuk-focus-text-colour, #0b0c0c);
+  }
 }
