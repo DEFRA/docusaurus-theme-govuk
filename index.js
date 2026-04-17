@@ -8,6 +8,61 @@ const removeMarkdown = require('remove-markdown');
 // handles deduplication automatically (second "Options" → "options-1", etc.).
 const GithubSlugger = require('github-slugger');
 
+// Remark plugin: transforms GitHub-style alert blockquotes into Docusaurus
+// containerDirective nodes so they render via the Admonition component.
+//
+//   > [!NOTE]      → :::note
+//   > [!TIP]       → :::tip
+//   > [!IMPORTANT] → :::important
+//   > [!WARNING]   → :::warning
+//   > [!CAUTION]   → :::caution
+//
+// Runs in beforeDefaultRemarkPlugins so containerDirective nodes are in place
+// before Docusaurus's admonition remark plugin processes them.
+function githubAlertToDirective(blockquote) {
+  const first = blockquote.children?.[0];
+  if (first?.type !== 'paragraph') return null;
+
+  const firstText = first.children?.[0];
+  if (firstText?.type !== 'text') return null;
+
+  const match = firstText.value.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*\n?/i);
+  if (!match) return null;
+
+  const type = match[1].toLowerCase();
+  const rest = firstText.value.slice(match[0].length);
+
+  let children;
+  if (rest.trim()) {
+    children = [
+      { ...first, children: [{ ...firstText, value: rest }, ...first.children.slice(1)] },
+      ...blockquote.children.slice(1),
+    ];
+  } else if (first.children.length > 1) {
+    children = [{ ...first, children: first.children.slice(1) }, ...blockquote.children.slice(1)];
+  } else {
+    children = blockquote.children.slice(1);
+  }
+
+  return { type: 'containerDirective', name: type, attributes: {}, children };
+}
+
+function walkGithubAlerts(node) {
+  if (!Array.isArray(node.children)) return;
+  for (let i = 0; i < node.children.length; i++) {
+    const child = node.children[i];
+    if (child.type === 'blockquote') {
+      const directive = githubAlertToDirective(child);
+      if (directive) { node.children[i] = directive; continue; }
+    }
+    walkGithubAlerts(child);
+  }
+}
+
+function remarkGithubAlerts() {
+  return walkGithubAlerts;
+}
+
 // Remark plugin: converts `<!-- no-sidebar -->` inline HTML comments inside
 // headings into a `data-no-sidebar` HTML attribute (via mdast hProperties) so
 // the runtime DOM scanner can detect and skip them. MDX/remark-rehype drops
@@ -102,7 +157,19 @@ function injectIntoUses(uses) {
     if (typeof use?.loader === 'string' && use.loader.includes('mdx-loader')) {
       use.options = use.options || {};
       use.options.beforeDefaultRemarkPlugins = use.options.beforeDefaultRemarkPlugins || [];
-      use.options.beforeDefaultRemarkPlugins.push(remarkNoSidebar);
+      use.options.beforeDefaultRemarkPlugins.push(remarkNoSidebar, remarkGithubAlerts);
+
+      // Add GitHub alert types not in Docusaurus's default keyword list.
+      if (use.options.admonitions !== false) {
+        const existing = use.options.admonitions || {};
+        const keywords = existing.keywords || ['note', 'tip', 'info', 'warning', 'danger'];
+        const extra = ['caution', 'important'].filter(k => !keywords.includes(k));
+        if (extra.length) {
+          use.options.admonitions = { ...existing, keywords: [...keywords, ...extra] };
+        }
+      }
+
+
     }
   }
 }

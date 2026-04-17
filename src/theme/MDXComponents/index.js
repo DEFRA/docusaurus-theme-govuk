@@ -2,7 +2,53 @@ import React from 'react';
 import CodeBlock from '@theme/CodeBlock';
 import Heading from '@theme/Heading';
 import Admonition from '@theme/Admonition';
-import {InsetText} from '@not-govuk/simple-components';
+import {InsetText, WarningText} from '@not-govuk/simple-components';
+
+const ALERT_CONFIGS = {
+  NOTE:      { label: 'Note',      modifier: 'govuk-inset-text--note'      },
+  TIP:       { label: 'Tip',       modifier: 'govuk-inset-text--tip'       },
+  INFO:      { label: 'Info',      modifier: 'govuk-inset-text--info'      },
+  IMPORTANT: { label: 'Important', modifier: 'govuk-inset-text--important'  },
+  CAUTION:   { label: 'Caution',   modifier: 'govuk-inset-text--caution'   },
+  WARNING:   { label: 'Warning',   modifier: null }, // uses WarningText
+};
+
+const ALERT_PATTERN = /^\s*\[!(NOTE|TIP|INFO|IMPORTANT|WARNING|CAUTION)\]\s*/i;
+
+// Parses blockquote children for a GitHub-style alert marker.
+// Returns {config, allContent} if found, null otherwise.
+function parseGithubAlert(children) {
+  const childArray = React.Children.toArray(children);
+  const firstChildIndex = childArray.findIndex((c) => React.isValidElement(c));
+  const firstChild = childArray[firstChildIndex];
+  if (!firstChild?.props) return null;
+
+  const pChildren = React.Children.toArray(firstChild.props.children);
+  let mergedLeadingText = '';
+  let mergeCount = 0;
+  for (const child of pChildren) {
+    if (typeof child !== 'string') break;
+    mergedLeadingText += child;
+    mergeCount += 1;
+  }
+
+  const match = ALERT_PATTERN.exec(mergedLeadingText);
+  if (!match) return null;
+
+  const config = ALERT_CONFIGS[match[1].toUpperCase()];
+  const remainingText = mergedLeadingText.slice(match[0].length).trimStart();
+  const newPChildren = [
+    ...(remainingText ? [remainingText] : []),
+    ...pChildren.slice(mergeCount),
+  ].filter((c) => !(typeof c === 'string' && c.trim() === ''));
+
+  const contentParagraph = newPChildren.length > 0
+    ? React.cloneElement(firstChild, {key: 'content'}, ...newPChildren)
+    : null;
+  const allContent = [contentParagraph, ...childArray.slice(firstChildIndex + 1)].filter(Boolean);
+
+  return {config, allContent};
+}
 
 function GovukLink(props) {
   return <a className="govuk-link" {...props} />;
@@ -84,55 +130,21 @@ const MDXComponents = {
   td: (props) => <td className="govuk-table__cell" {...props} />,
   // Blockquotes rendered as GOV.UK InsetText, with support for GitHub-style alerts
   // e.g. > [!NOTE], > [!WARNING], > [!TIP], > [!IMPORTANT], > [!CAUTION]
-  blockquote: ({children, ...rest}) => {
-    // Use \s* to tolerate any whitespace (newlines, \r\n, spaces) around the marker
-    const alertPattern = /^\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i;
-    const childArray = React.Children.toArray(children);
-    // Skip leading whitespace text nodes — MDX can inject them
-    const firstChildIndex = childArray.findIndex((c) => React.isValidElement(c));
-    const firstChild = childArray[firstChildIndex];
+  blockquote: ({children}) => {
+    const alert = parseGithubAlert(children);
+    if (!alert) return <InsetText>{children}</InsetText>;
 
-    // Don't check type === 'p': when a p override is registered in MDXComponents,
-    // MDX sets the element type to the override function, not the string 'p'.
-    if (firstChild?.props) {
-      const pChildren = React.Children.toArray(firstChild.props.children);
-
-      // Remark can split "[!NOTE]" across adjacent text nodes (e.g. "[" + "!NOTE]\n...")
-      // when the paragraph also contains inline links. Merge leading text nodes before
-      // testing so the marker is always visible as a single string.
-      let mergedLeadingText = '';
-      let mergeCount = 0;
-      for (const child of pChildren) {
-        if (typeof child !== 'string') break;
-        mergedLeadingText += child;
-        mergeCount += 1;
-      }
-
-      const match = alertPattern.exec(mergedLeadingText);
-      if (match) {
-        const alertType = match[1].toUpperCase();
-        const remainingText = mergedLeadingText.slice(match[0].length).trimStart();
-        const newPChildren = [
-          ...(remainingText ? [remainingText] : []),
-          ...pChildren.slice(mergeCount),
-        ].filter((c) => !(typeof c === 'string' && c.trim() === ''));
-
-        const contentParagraph = newPChildren.length > 0
-          ? React.cloneElement(firstChild, {key: 'content'}, ...newPChildren)
-          : null;
-        // Use firstChildIndex + 1 so we don't re-include the original <p>
-        const allContent = [contentParagraph, ...childArray.slice(firstChildIndex + 1)].filter(Boolean);
-
-        return (
-          <InsetText {...rest}>
-            <p key="title"><strong>{alertType}</strong></p>
-            {allContent}
-          </InsetText>
-        );
-      }
+    const {config, allContent} = alert;
+    if (!config.modifier) {
+      return <WarningText>{allContent}</WarningText>;
     }
 
-    return <InsetText {...rest}>{children}</InsetText>;
+    return (
+      <InsetText className={config.modifier}>
+        <p key="title"><strong>{config.label.toUpperCase()}</strong></p>
+        {allContent}
+      </InsetText>
+    );
   },
   h1: (props) => <Heading as="h1" {...props} />,
   h2: (props) => <Heading as="h2" {...props} />,
