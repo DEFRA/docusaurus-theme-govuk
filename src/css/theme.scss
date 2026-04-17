@@ -17,7 +17,9 @@
  * without this, outer chrome inherits the browser default serif.
  * GDS Transport is not bundled — Helvetica/Arial is used instead.
  */
-body {
+body,
+[class^="govuk-"],
+[class*=" govuk-"] {
   font-family: Helvetica, Arial, sans-serif;
 }
 

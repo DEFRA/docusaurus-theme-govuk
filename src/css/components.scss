@@ -34,6 +34,54 @@
   min-width: 0;
 }
 
+// Admonition colour modifiers.
+// The thick left bar is drawn via ::before so it overlaps the thin border corners
+// cleanly — CSS border mitering would otherwise show a pale sliver at the joins.
+// border-left-width is kept at 5px (matching GOV.UK's original) but made transparent
+// so the element's layout is unchanged; ::before paints over that space.
+.govuk-inset-text.govuk-inset-text--note,
+.govuk-inset-text.govuk-inset-text--tip,
+.govuk-inset-text.govuk-inset-text--info,
+.govuk-inset-text.govuk-inset-text--important {
+  border: 1px solid #bad3ea;
+  border-left-width: 10px;
+  border-left-color: transparent;
+  background: none;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: -10px;
+    width: 10px;
+    background: #1d70b8;
+  }
+
+  > p:first-child strong { color: #1d70b8; }
+}
+
+.govuk-inset-text.govuk-inset-text--caution {
+  border: 1px solid #fbd6c3;
+  border-left-width: 10px;
+  border-left-color: transparent;
+  background: none;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: -10px;
+    width: 10px;
+    background: #f47738;
+  }
+
+  > p:first-child strong { color: #f47738; }
+}
+
 // Code block
 .app-code-block {
   position: relative;
@@ -56,10 +104,18 @@
   font-size: 0.875rem;
   line-height: 1.6;
   font-family: Menlo, Consolas, 'Courier New', monospace;
-  position: relative;
-  border: 1px solid #cecece;
   background-color: #f4f8fb;
-  margin: 0;
+
+  code {
+    display: block;
+
+    > div::after {
+      content: '';
+      display: inline-block;
+      width: calc(1rem + 70px);
+      line-height: 0;
+    }
+  }
 }
 
 .app-code-block__copy {

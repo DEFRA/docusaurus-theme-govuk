@@ -1,32 +1,27 @@
 import React from 'react';
 import {InsetText, WarningText} from '@not-govuk/simple-components';
 
-const admonitionTitles = {
-  note: 'Note',
-  tip: 'Tip',
-  info: 'Info',
-  warning: 'Warning',
-  danger: 'Danger',
-  caution: 'Caution',
+const ADMONITION_CONFIGS = {
+  note:      { label: 'Note',      modifier: 'govuk-inset-text--note'     },
+  tip:       { label: 'Tip',       modifier: 'govuk-inset-text--tip'      },
+  info:      { label: 'Info',      modifier: 'govuk-inset-text--info'     },
+  important: { label: 'Important', modifier: 'govuk-inset-text--important' },
+  caution:   { label: 'Caution',   modifier: 'govuk-inset-text--caution'  },
+  warning:   { label: 'Warning',   modifier: null },
+  danger:    { label: 'Danger',    modifier: null },
 };
 
 export default function Admonition({type = 'note', title, children}) {
-  const displayTitle = title || admonitionTitles[type] || 'Note';
+  const config = ADMONITION_CONFIGS[type] ?? ADMONITION_CONFIGS.note;
+  const displayTitle = (title || config.label).toUpperCase();
 
-  // Warning and danger types use GOV.UK WarningText
-  if (type === 'warning' || type === 'danger' || type === 'caution') {
-    return (
-      <WarningText>
-        <strong>{displayTitle}: </strong>
-        {children}
-      </WarningText>
-    );
+  if (!config.modifier) {
+    return <WarningText>{children}</WarningText>;
   }
 
-  // All other types use GOV.UK InsetText
   return (
-    <InsetText>
-      {title && <strong>{displayTitle}: </strong>}
+    <InsetText className={config.modifier}>
+      <p><strong>{displayTitle}</strong></p>
       {children}
     </InsetText>
   );

@@ -22,6 +22,14 @@
 
   // Extra top padding on headings that follow a code block,
   // matching the spacing govuk-frontend adds after paragraphs and lists
+  .app-code-block + h2:not(.app-no-prose *),
+  .app-code-block + h3:not(.app-no-prose *),
+  .app-code-block + h4:not(.app-no-prose *),
+  .app-code-block + h5:not(.app-no-prose *),
+  .app-code-block + h6:not(.app-no-prose *) {
+    padding-top: 5px;
+  }
+
   @media (min-width: 40.0625em) {
     .app-code-block + h2:not(.app-no-prose *),
     .app-code-block + h3:not(.app-no-prose *),
