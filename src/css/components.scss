@@ -153,18 +153,27 @@
   border-bottom: 1px solid #cecece;
 
   position: relative;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  margin-bottom: 5px;
-  font-size: 1rem;
+  padding-top: govuk-spacing(2);
+  padding-bottom: govuk-spacing(2);
+  margin-bottom: 0;
+  font-size: 1.1875rem;
   padding-left: 0;
   margin-left: 0;
+
+  @media (min-width: 48.125em) {
+    font-size: 1rem;
+  }
   
   @media (min-width: 48.125em) {
     border-bottom: 0;
 
     &:after {
       border-bottom: 0;
+    }
+
+    &:first-child {
+      padding-top: 0;
+      margin-top: 0;
     }
   }
 
@@ -296,6 +305,27 @@
     color: #0b0c0c;
     background-color: #fd0;
     box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+  }
+}
+
+// Lock service navigation to 1.1875rem on all devices, including mobile where
+// govuk-font(19) would otherwise drop to 1rem. Parent selector raises
+// specificity to (0,2,0) to beat the govuk-frontend mobile breakpoint rule.
+.govuk-service-navigation .govuk-service-navigation__list,
+.govuk-service-navigation .govuk-service-navigation__toggle,
+.govuk-service-navigation .govuk-service-navigation__service-name {
+  font-size: 1.1875rem;
+}
+
+// Sidebar nav links and headings: 1.1875rem on mobile, 1rem on larger devices.
+// Two-class specificity (0,2,0) beats the not-govuk `aside a` rule at (0,1,1).
+.app-layout-sidebar__nav .not-govuk-navigation-menu__list__link,
+.app-layout-sidebar__nav .not-govuk-navigation-menu__list__heading,
+.app-layout-sidebar__nav .not-govuk-navigation-menu__list__heading-toggle {
+  font-size: 1.1875rem;
+
+  @media (min-width: 48.125em) {
+    font-size: 1rem;
   }
 }
 

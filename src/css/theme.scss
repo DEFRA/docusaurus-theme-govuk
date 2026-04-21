@@ -23,6 +23,14 @@ body,
   font-family: Helvetica, Arial, sans-serif;
 }
 
+// Restore GDS Transport inside .app-no-prose containers (e.g. map examples in
+// host apps that load the font separately and need the real GDS type stack).
+.app-no-prose,
+.app-no-prose [class^="govuk-"],
+.app-no-prose [class*=" govuk-"] {
+  font-family: "GDS Transport", arial, sans-serif;
+}
+
 /* Wider page width — overrides the 960px default from govuk-frontend.
  * !important is needed because @not-govuk/width-container injects its CSS
  * via the JS bundle, which loads after static stylesheets and wins the cascade.
