@@ -24,6 +24,8 @@
  *      into compiled output; !important ensures those are always overridden.
  */
 body,
+h1, h2, h3, h4, h5, h6,
+p, li, a, span:not(pre *):not(code *), label, legend, dt, dd, caption, summary,
 [class^="govuk-"],
 [class*=" govuk-"] {
   font-family: Helvetica, Arial, sans-serif !important;
