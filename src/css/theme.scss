@@ -11,16 +11,22 @@
 @import 'govuk-frontend/dist/govuk/objects/grid';
 
 /*
- * Set the default font on the body so that ALL elements
- * (header, footer, service-nav, etc.) inherit the same stack.
- * The prose-scope only covers content inside .app-prose-scope;
- * without this, outer chrome inherits the browser default serif.
- * GDS Transport is not bundled — Helvetica/Arial is used instead.
+ * Font: Helvetica/Arial (not GDS Transport).
+ *
+ * GDS Transport is Crown Copyright and may only be used on gov.uk domains.
+ * This theme is designed for use on non-gov.uk domains (e.g. GitHub Pages),
+ * so Helvetica/Arial is used throughout as a visually similar alternative.
+ *
+ * !important is required for two reasons:
+ *   1. @not-govuk injects its own CSS via the JS bundle after static
+ *      stylesheets load, which would otherwise win the cascade.
+ *   2. govuk-frontend mixins (e.g. govuk-font) bake GDS Transport directly
+ *      into compiled output; !important ensures those are always overridden.
  */
 body,
 [class^="govuk-"],
 [class*=" govuk-"] {
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif !important;
 }
 
 // Restore GDS Transport inside .app-no-prose containers (e.g. map examples in
