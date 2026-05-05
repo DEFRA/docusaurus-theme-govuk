@@ -1,9 +1,9 @@
 import React from 'react';
 
 const headingClasses = {
-  h1: 'govuk-heading-xl',
-  h2: 'govuk-heading-l',
-  h3: 'govuk-heading-m',
+  h1: 'govuk-heading-l',
+  h2: 'govuk-heading-m',
+  h3: 'govuk-heading-s',
   h4: 'govuk-heading-s',
   h5: 'govuk-heading-s',
   h6: 'govuk-heading-s',
