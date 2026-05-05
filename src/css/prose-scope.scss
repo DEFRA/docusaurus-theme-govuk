@@ -5,15 +5,15 @@
 .app-prose-scope {
   // Headings
   h1:not(.app-no-prose *) {
-    @extend %govuk-heading-xl;
-  }
-
-  h2:not(.app-no-prose *) {
     @extend %govuk-heading-l;
   }
 
-  h3:not(.app-no-prose *) {
+  h2:not(.app-no-prose *) {
     @extend %govuk-heading-m;
+  }
+
+  h3:not(.app-no-prose *) {
+    @extend %govuk-heading-s;
   }
 
   h4:not(.app-no-prose *) {
