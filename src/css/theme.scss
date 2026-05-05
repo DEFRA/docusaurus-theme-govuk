@@ -70,8 +70,21 @@ body,
 }
 
 .govuk-template__body-inner > .govuk-width-container {
-  flex: 1 0 auto;
   width: calc(100% - 30px);
+}
+
+.govuk-template__body-inner > main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+
+  > *:last-child {
+    flex: 1;
+  }
+}
+
+.govuk-template__body-inner > .govuk-width-container:has(main) {
+  flex: 1 0 auto;
 }
 
 @media (min-width: 40.0625em) {

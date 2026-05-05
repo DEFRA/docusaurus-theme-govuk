@@ -308,39 +308,52 @@ export default function Layout(props) {
           </div>
         )}
 
-        {phaseBanner && (
+        {isHomepage ? (
+          <>
+            {phaseBanner && (
+              <div className="govuk-width-container">
+                <PhaseBanner phase={phaseBanner.phase}>
+                  {phaseBanner.text}{' '}
+                  {phaseBanner.feedbackHref && (
+                    <a href={phaseBanner.feedbackHref} className="govuk-link">
+                      feedback
+                    </a>
+                  )}
+                </PhaseBanner>
+              </div>
+            )}
+            <main id="main-content">
+              {children}
+            </main>
+          </>
+        ) : (
           <div className="govuk-width-container">
-            <PhaseBanner phase={phaseBanner.phase}>
-              {phaseBanner.text}{' '}
-              {phaseBanner.feedbackHref && (
-                <a href={phaseBanner.feedbackHref} className="govuk-link">
-                  feedback
-                </a>
+            {phaseBanner && (
+              <PhaseBanner phase={phaseBanner.phase}>
+                {phaseBanner.text}{' '}
+                {phaseBanner.feedbackHref && (
+                  <a href={phaseBanner.feedbackHref} className="govuk-link">
+                    feedback
+                  </a>
+                )}
+              </PhaseBanner>
+            )}
+            <main id="main-content" className="govuk-main-wrapper">
+              {sidebarItems ? (
+                <div className="app-layout-sidebar">
+                  <aside className="app-layout-sidebar__nav">
+                    <SidebarNav items={sidebarItems} />
+                  </aside>
+                  <div className="app-layout-sidebar__content">
+                    {children}
+                  </div>
+                </div>
+              ) : (
+                children
               )}
-            </PhaseBanner>
+            </main>
           </div>
         )}
-
-        <main id="main-content" className={isHomepage ? undefined : 'govuk-main-wrapper'}>
-          {sidebarItems ? (
-            <div className="govuk-width-container">
-              <div className="app-layout-sidebar">
-                <aside className="app-layout-sidebar__nav">
-                  <SidebarNav items={sidebarItems} />
-                </aside>
-                <div className="app-layout-sidebar__content">
-                  {children}
-                </div>
-              </div>
-            </div>
-          ) : isHomepage ? (
-            children
-          ) : (
-            <div className="govuk-width-container">
-              {children}
-            </div>
-          )}
-        </main>
 
         {!noFooter && (
           <Footer rebrand meta={footer.meta} />
