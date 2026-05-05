@@ -2,9 +2,13 @@
 
 A Docusaurus 3 theme that applies the [GOV.UK Design System](https://design-system.service.gov.uk/) to your documentation site.
 
+## Intended use
+
+This theme is intended for **developer documentation sites**, not public-facing government services. Certain GOV.UK assets are intentionally omitted or substituted for licensing reasons — for example, the crown logo is not included and GDS Transport is not bundled. See [Making your service look like GOV.UK](https://www.gov.uk/service-manual/design/making-your-service-look-like-govuk#if-your-service-isnt-on-govuk) for the relevant guidance.
+
 ## Features
 
-- Full GOV.UK Design System shell: Header (with crown crest), Service Navigation, Phase Banner, Footer
+- Full GOV.UK Design System shell: Header, Service Navigation, Phase Banner, Footer
 - GOV.UK typography applied to all Markdown/MDX content via prose scoping
 - Sidebar navigation driven by configuration (not Docusaurus's built-in sidebar UI)
 - Syntax-highlighted code blocks with copy button

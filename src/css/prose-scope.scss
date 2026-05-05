@@ -110,19 +110,6 @@
     }
   }
 
-  // Override GDS Transport on all prose elements. This must come after the
-  // @extend rules above (which bake in "GDS Transport" from govuk-frontend) so
-  // that cascade order wins at equal specificity. app-no-prose content is
-  // excluded so host apps can render GDS Transport there if licensed.
-  h1:not(.app-no-prose *),
-  h2:not(.app-no-prose *),
-  h3:not(.app-no-prose *),
-  h4:not(.app-no-prose *),
-  p:not(.app-no-prose *),
-  li:not(.app-no-prose *),
-  a:not(.app-no-prose *) {
-    font-family: Helvetica, Arial, sans-serif;
-  }
 
 
   // Code block copy button
