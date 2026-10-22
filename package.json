@@ -24,27 +24,27 @@
     "@docusaurus/core": "^3.0.0",
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0",
+    "react-router-dom": "^5.3.4",
     "webpack": "^5.0.0"
   },
   "dependencies": {
     "@mdx-js/react": "^3.0.0",
-    "@not-govuk/simple-components": "^0.17.3",
-    "clsx": "^2.0.0",
-    "copy-webpack-plugin": "^11.0.0",
-    "css-loader": "^7.1.0",
+    "@not-govuk/simple-components": "^0.17.4",
+    "copy-webpack-plugin": "^14.0.0",
+    "css-loader": "^7.1.5",
     "github-slugger": "^2.0.0",
     "govuk-frontend": "^5.14.0",
     "postcss-loader": "^8.2.0",
     "prism-react-renderer": "^2.3.0",
-    "remove-markdown": "^0.6.3",
-    "sass": "^1.97.0",
-    "sass-loader": "^16.0.0",
+    "remove-markdown": "^0.8.0",
+    "sass": "^1.106.1",
+    "sass-loader": "^16.0.8",
     "style-loader": "^4.0.0"
   },
   "engines": {
-    "node": ">=18.0"
+    "node": ">=20.9"
   },
   "devDependencies": {
-    "mini-css-extract-plugin": "^2.10.0"
+    "mini-css-extract-plugin": "^2.10.2"
   }
 }

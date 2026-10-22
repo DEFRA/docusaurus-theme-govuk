@@ -303,7 +303,7 @@ Common components to override:
 
 - **Docusaurus**: ^3.0.0
 - **React**: ^18.0.0 || ^19.0.0
-- **Node.js**: 18+
+- **Node.js**: 20.9+
 
 ## Open Source Attribution
 
