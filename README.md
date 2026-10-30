@@ -2,6 +2,8 @@
 
 A Docusaurus 3 theme that applies the [GOV.UK Design System](https://design-system.service.gov.uk/) to your documentation site.
 
+![Home page with a green hero banner, header search and service navigation](docs/images/home-page.png)
+
 ## Intended use
 
 This theme is intended for **developer documentation sites**, not public-facing government services. Certain GOV.UK assets are intentionally omitted or substituted for licensing reasons — for example, the crown logo is not included and GDS Transport is not bundled. See [Making your service look like GOV.UK](https://www.gov.uk/service-manual/design/making-your-service-look-like-govuk#if-your-service-isnt-on-govuk) for the relevant guidance.
