@@ -7,41 +7,56 @@
 // wires up useIsActive with the real location so @not-govuk components like
 // ServiceNavigation can correctly detect the active page.
 
-import { useLocation as _useLocation, useParams, Link } from 'react-router-dom';
+import { createElement, forwardRef } from 'react';
+import {
+  useHistory,
+  useLocation as _useLocation,
+  useParams,
+  Link as RouterLink
+} from 'react-router-dom';
 import { URI } from '@react-foundry/uri';
 
-export { useParams, Link };
+export { useParams };
+
+// @react-foundry/anchor sets `hash: '#'` on internal links that have no hash.
+// Docusaurus only scrolls to the top after navigation when the hash is empty,
+// so an empty '#' leaves the new page at the old scroll position and adds a
+// trailing '#' to the URL. Drop it before handing off to react-router.
+const stripEmptyHash = (to) =>
+  to && typeof to === 'object' && to.hash === '#' ? { ...to, hash: '' } : to;
+
+export const Link = forwardRef(({ to, ...props }, ref) =>
+  createElement(RouterLink, { ...props, innerRef: ref, to: stripEmptyHash(to) })
+);
+Link.displayName = 'Link';
 
 export const needSuspense = false;
 
 // Enhance location with parsed query string (matches @react-foundry/router API)
-const enhanceLocation = (location) => {
-  const search = location.search || '';
-  const params = new URLSearchParams(search);
-  const query = {};
-  for (const [key, value] of params.entries()) {
-    query[key] = value;
-  }
-  return { ...location, query };
-};
+const enhanceLocation = (location) => ({
+  ...location,
+  query: Object.fromEntries(new URLSearchParams(location.search ?? ''))
+});
 
 export const useLocation = () => enhanceLocation(_useLocation());
 
 // Build useIsActive from the real location (mirrors @react-foundry/router/is-active)
 const includes = (haystack, needle) => {
-  const subIncludes = (h, n) =>
-    Array.isArray(n)
-      ? n.length === h.length && n.every((v, i) => subIncludes(h[i], v))
-      : typeof n === 'object'
-        ? typeof h === 'object' && Object.keys(n).every((k) => subIncludes(h[k], n[k]))
-        : n === h;
-  return subIncludes(haystack, needle);
+  if (Array.isArray(needle)) {
+    return needle.length === haystack.length
+      && needle.every((v, i) => includes(haystack[i], v));
+  }
+  if (typeof needle === 'object') {
+    return typeof haystack === 'object'
+      && Object.keys(needle).every((k) => includes(haystack[k], needle[k]));
+  }
+  return needle === haystack;
 };
 
 export const useIsActive = () => {
   const location = useLocation();
 
-  return (href, exact = true, options = {}) => {
+  return (href) => {
     const target = URI.parse(href, location.pathname);
     const pathMatch = location.pathname === target.pathname;
     const queryMatch = includes(location.query, target.query);
@@ -68,14 +83,12 @@ export const useIsActive = () => {
 
 // React Router v5 has useHistory, not useNavigate — wrap it
 export const useNavigate = () => {
-  const { useHistory } = require('react-router-dom');
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   const history = useHistory();
   return (to) => {
     if (typeof to === 'number') {
       history.go(to);
     } else {
-      history.push(to);
+      history.push(stripEmptyHash(to));
     }
   };
 };
